@@ -8,7 +8,7 @@ namespace BugTrackingSystem.Configurations
     {
         public void Configure(EntityTypeBuilder<Project> builder)
         {
-            // Primary Key
+            // Primary Key for project 
             builder.HasKey(p => p.ProjectId);
 
             // Properties
