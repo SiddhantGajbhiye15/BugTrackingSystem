@@ -1,0 +1,45 @@
+# ===== .NET / Backend =====
+backend/**/bin/
+backend/**/obj/
+backend/**/out/
+backend/**/.vs/
+backend/**/publish/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+[Bb]in/
+[Oo]bj/
+
+# EF Core - keep Migrations folder, ignore local db files
+backend/**/*.db
+backend/**/*.db-shm
+backend/**/*.db-wal
+
+# Secrets - never commit these
+backend/**/appsettings.Development.json
+backend/**/appsettings.Local.json
+backend/**/secrets.json
+
+# ===== React / Frontend =====
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+
+# ===== Editor / OS =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
