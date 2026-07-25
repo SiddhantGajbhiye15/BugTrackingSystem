@@ -13,12 +13,6 @@ namespace BugTrackingSystem.Repositories
         {
             _context = context;
         }
-        public async Task<List<User>> GetAllAsync()
-        {
-            return await _context.Users
-                .OrderBy(u => u.UserId)
-                .ToListAsync();
-        }
 
         public async Task<User?> GetByEmailAsync(string email)
         {
@@ -28,7 +22,26 @@ namespace BugTrackingSystem.Repositories
 
         public async Task<User?> GetByIdAsync(int userId)
         {
-            return await _context.Users.FindAsync(userId);
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+        }
+
+        public async Task<List<User>> GetAllAsync()
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .OrderBy(u => u.UserId)
+                .ToListAsync();
+        }
+
+        public async Task<bool> EmailExistsAsync(
+            string email,
+            int? excludeUserId = null)
+        {
+            return await _context.Users.AnyAsync(u =>
+                u.Email == email &&
+                (!excludeUserId.HasValue ||
+                 u.UserId != excludeUserId.Value));
         }
 
         public async Task AddAsync(User user)
@@ -39,10 +52,6 @@ namespace BugTrackingSystem.Repositories
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
-        }
-        public async Task<bool> EmailExistsAsync(string email)
-        {
-            return await _context.Users.AnyAsync(u => u.Email == email);
         }
     }
 }

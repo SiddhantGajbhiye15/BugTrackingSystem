@@ -1,13 +1,33 @@
 ﻿using BugTrackingSystem.DTOs.Authentication;
 using BugTrackingSystem.DTOs.Users;
 
-public interface IUserService
+namespace BugTrackingSystem.Interfaces
 {
-    Task<UserResponseDto> CreateUserAsync(CreateUserRequestDto request);
+    public interface IUserService
+    {
+        Task<UserResponseDto> CreateUserAsync(
+            CreateUserRequestDto request
+        );
 
-    Task<UserResponseDto?> GetByIdAsync(int userId);
+        Task<List<UserResponseDto>> GetAllAsync();
 
-    Task<List<UserResponseDto>> GetAllAsync();
+        Task<UserResponseDto?> GetByIdAsync(int userId);
 
-    Task ChangePasswordAsync(int userId, ChangePasswordRequestDto request);
+        Task<UserResponseDto?> UpdateUserAsync(
+            int userId,
+            UpdateUserRequestDto request
+        );
+
+        Task<bool> ActivateUserAsync(int userId);
+
+        Task<bool> DeactivateUserAsync(
+            int userId,
+            int currentAdminUserId
+        );
+
+        Task ChangePasswordAsync(
+            int userId,
+            ChangePasswordRequestDto request
+        );
+    }
 }
