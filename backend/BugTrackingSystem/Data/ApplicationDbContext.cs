@@ -23,11 +23,7 @@ namespace BugTrackingSystem.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
-            modelBuilder.ApplyConfiguration(new ProjectConfiguration());
-            modelBuilder.ApplyConfiguration(new ProjectMemberConfiguration());
-            modelBuilder.ApplyConfiguration(new BugConfiguration());
-            modelBuilder.ApplyConfiguration(new CommentConfiguration());
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
 
     }
