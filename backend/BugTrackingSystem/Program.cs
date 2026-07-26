@@ -74,6 +74,14 @@ builder.Services.AddScoped<IBugService, BugService>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 
+builder.Services.AddScoped<
+    IDashboardRepository,
+    DashboardRepository>();
+
+builder.Services.AddScoped<
+    IDashboardService,
+    DashboardService>();
+
 builder.Services.AddScoped<JwtTokenGenerator>();
 
 // JWT Authentication
