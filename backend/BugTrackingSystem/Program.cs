@@ -68,6 +68,9 @@ builder.Services.AddScoped<
     IProjectMemberService,
     ProjectMemberService>();
 
+builder.Services.AddScoped<IBugRepository, BugRepository>();
+builder.Services.AddScoped<IBugService, BugService>();
+
 builder.Services.AddScoped<JwtTokenGenerator>();
 
 // JWT Authentication

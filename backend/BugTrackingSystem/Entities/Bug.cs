@@ -1,7 +1,6 @@
-﻿
-using BugTrackingSystem.Enums;
-namespace BugTrackingSystem.Entities
+﻿using BugTrackingSystem.Enums;
 
+namespace BugTrackingSystem.Entities
 {
     public class Bug
     {
@@ -17,16 +16,25 @@ namespace BugTrackingSystem.Entities
 
         public string Description { get; set; } = string.Empty;
 
+        public BugType Type { get; set; }
+
         public BugPriority Priority { get; set; }
 
         public BugStatus Status { get; set; }
+
+        public string ExpectedOutput { get; set; } = string.Empty;
+
+        public string ActualOutput { get; set; } = string.Empty;
+
+        public string StepsToReproduce { get; set; } = string.Empty;
+
+        public string? EvidenceLink { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
 
-
-        // Navigation Properties
+        // Navigation properties
 
         public Project Project { get; set; } = null!;
 
@@ -34,6 +42,7 @@ namespace BugTrackingSystem.Entities
 
         public User? AssignedDeveloper { get; set; }
 
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<Comment> Comments { get; set; }
+            = new List<Comment>();
     }
 }

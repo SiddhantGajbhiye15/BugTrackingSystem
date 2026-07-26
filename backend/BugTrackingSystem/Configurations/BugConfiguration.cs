@@ -8,7 +8,7 @@ namespace BugTrackingSystem.Configurations
     {
         public void Configure(EntityTypeBuilder<Bug> builder)
         {
-            // Primary Key
+            // Primary key
             builder.HasKey(b => b.BugId);
 
             // Properties
@@ -20,17 +20,48 @@ namespace BugTrackingSystem.Configurations
                 .IsRequired()
                 .HasMaxLength(2000);
 
+            builder.Property(b => b.Type)
+                .IsRequired();
+
             builder.Property(b => b.Priority)
                 .IsRequired();
 
             builder.Property(b => b.Status)
                 .IsRequired();
 
+            builder.Property(b => b.ExpectedOutput)
+                .IsRequired()
+                .HasMaxLength(1000);
+
+            builder.Property(b => b.ActualOutput)
+                .IsRequired()
+                .HasMaxLength(1000);
+
+            builder.Property(b => b.StepsToReproduce)
+                .IsRequired()
+                .HasMaxLength(2000);
+
+            builder.Property(b => b.EvidenceLink)
+                .HasMaxLength(1000);
+
             builder.Property(b => b.CreatedAt)
                 .IsRequired();
 
-            // Relationships
+            // Useful for project bug lists and status filtering
+            builder.HasIndex(b => new
+            {
+                b.ProjectId,
+                b.Status
+            });
 
+            // Useful for developer's assigned-bugs page
+            builder.HasIndex(b => new
+            {
+                b.AssignedDeveloperId,
+                b.Status
+            });
+
+            // Relationships
             builder.HasOne(b => b.Project)
                 .WithMany(p => p.Bugs)
                 .HasForeignKey(b => b.ProjectId)
