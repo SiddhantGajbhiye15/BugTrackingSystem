@@ -16,5 +16,7 @@
 
         public Project Project { get; set; } = null!;
 
+        public DateTime? RemovedDate { get; set; }
+
     }
 }

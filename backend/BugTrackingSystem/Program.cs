@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
+using BugTrackingSystem.Repositories.Implementations;
+using BugTrackingSystem.Repositories.Interfaces;
+using BugTrackingSystem.Services.Implementations;
+using BugTrackingSystem.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +59,14 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
+
+builder.Services.AddScoped<
+    IProjectMemberRepository,
+    ProjectMemberRepository>();
+
+builder.Services.AddScoped<
+    IProjectMemberService,
+    ProjectMemberService>();
 
 builder.Services.AddScoped<JwtTokenGenerator>();
 

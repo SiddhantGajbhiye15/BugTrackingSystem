@@ -18,6 +18,9 @@ namespace BugTrackingSystem.Configurations
             // Prevent duplicate membership
             builder.HasIndex(pm => new { pm.ProjectId, pm.UserId })
                 .IsUnique();
+            builder.HasIndex(pm => pm.UserId)
+                .IsUnique()
+                .HasFilter("[RemovedDate] IS NULL");
 
             // Relationships
 

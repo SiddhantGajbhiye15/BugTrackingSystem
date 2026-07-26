@@ -4,6 +4,7 @@ using BugTrackingSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BugTrackingSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260726065605_AddRemovedDateToProjectMember")]
+    partial class AddRemovedDateToProjectMember
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,9 +136,7 @@ namespace BugTrackingSystem.Migrations
 
                     b.HasKey("ProjectMemberId");
 
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[RemovedDate] IS NULL");
+                    b.HasIndex("UserId");
 
                     b.HasIndex("ProjectId", "UserId")
                         .IsUnique();
