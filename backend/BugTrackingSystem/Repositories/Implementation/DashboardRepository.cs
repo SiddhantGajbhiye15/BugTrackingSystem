@@ -1,5 +1,6 @@
 ﻿using BugTrackingSystem.Data;
 using BugTrackingSystem.Entities;
+using BugTrackingSystem.Enums;
 using BugTrackingSystem.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -80,6 +81,57 @@ namespace BugTrackingSystem.Repositories.Implementations
                 .Include(b => b.Project)
                 .Include(b => b.ReportedByUser)
                 .Include(b => b.AssignedDeveloper)
+                .OrderByDescending(b => b.CreatedAt)
+                .ToListAsync();
+        }
+        public async Task<ProjectMember?>
+    GetTesterActiveProjectMembershipAsync(int testerId)
+        {
+            return await _context.ProjectMembers
+                .AsNoTracking()
+                .Where(pm =>
+                    pm.UserId == testerId &&
+                    pm.RemovedDate == null &&
+                    pm.Project.Status == ProjectStatus.Active)
+                .Include(pm => pm.Project)
+                    .ThenInclude(p => p.CreatedByUser)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Bug>>
+            GetTesterReportedBugsAsync(int testerId)
+        {
+            return await _context.Bugs
+                .AsNoTracking()
+                .Where(b => b.ReportedByUserId == testerId)
+                .Include(b => b.Project)
+                .Include(b => b.AssignedDeveloper)
+                .OrderByDescending(b => b.CreatedAt)
+                .ToListAsync();
+        }
+        public async Task<ProjectMember?>
+        GetDeveloperActiveProjectMembershipAsync(int developerId)
+        {
+            return await _context.ProjectMembers
+                .AsNoTracking()
+                .Where(pm =>
+                    pm.UserId == developerId &&
+                    pm.RemovedDate == null &&
+                    pm.Project.Status == ProjectStatus.Active)
+                .Include(pm => pm.Project)
+                    .ThenInclude(p => p.CreatedByUser)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Bug>>
+            GetDeveloperBugsAsync(int developerId)
+        {
+            return await _context.Bugs
+                .AsNoTracking()
+                .Where(b =>
+                    b.AssignedDeveloperId == developerId)
+                .Include(b => b.Project)
+                .Include(b => b.ReportedByUser)
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
         }

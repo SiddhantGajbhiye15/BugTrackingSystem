@@ -313,5 +313,251 @@ namespace BugTrackingSystem.Services.Implementations
                 UpdatedAt = bug.UpdatedAt
             };
         }
+        public async Task<TesterDashboardResponseDto>
+    GetTesterDashboardAsync(int currentUserId)
+        {
+            var activeMembership = await _dashboardRepository
+                .GetTesterActiveProjectMembershipAsync(currentUserId);
+
+            var reportedBugs = await _dashboardRepository
+                .GetTesterReportedBugsAsync(currentUserId);
+
+            var awaitingVerificationBugs = reportedBugs
+                .Where(b => b.Status == BugStatus.Resolved)
+                .OrderByDescending(b => b.UpdatedAt ?? b.CreatedAt)
+                .Take(5)
+                .Select(MapTesterBug)
+                .ToList();
+
+            var recentReportedBugs = reportedBugs
+                .OrderByDescending(b => b.CreatedAt)
+                .Take(5)
+                .Select(MapTesterBug)
+                .ToList();
+
+            return new TesterDashboardResponseDto
+            {
+                CurrentProject = activeMembership == null
+                    ? null
+                    : new TesterCurrentProjectDto
+                    {
+                        ProjectId =
+                            activeMembership.Project.ProjectId,
+
+                        ProjectCode =
+                            activeMembership.Project.ProjectCode,
+
+                        ProjectName =
+                            activeMembership.Project.ProjectName,
+
+                        ProjectManagerName =
+                            $"{activeMembership.Project.CreatedByUser.FirstName} " +
+                            $"{activeMembership.Project.CreatedByUser.LastName}",
+
+                        Status =
+                            activeMembership.Project.Status.ToString()
+                    },
+
+                TotalReportedBugs = reportedBugs.Count,
+
+                OpenBugs = reportedBugs.Count(b =>
+                    b.Status == BugStatus.Open),
+
+                AwaitingVerification = reportedBugs.Count(b =>
+                    b.Status == BugStatus.Resolved),
+
+                ReopenedBugs = reportedBugs.Count(b =>
+                    b.Status == BugStatus.Reopened),
+
+                BugsByStatus = new BugStatusOverviewDto
+                {
+                    Open = reportedBugs.Count(b =>
+                        b.Status == BugStatus.Open),
+
+                    Assigned = reportedBugs.Count(b =>
+                        b.Status == BugStatus.Assigned),
+
+                    InProgress = reportedBugs.Count(b =>
+                        b.Status == BugStatus.InProgress),
+
+                    Resolved = reportedBugs.Count(b =>
+                        b.Status == BugStatus.Resolved),
+
+                    Closed = reportedBugs.Count(b =>
+                        b.Status == BugStatus.Closed),
+
+                    Reopened = reportedBugs.Count(b =>
+                        b.Status == BugStatus.Reopened)
+                },
+
+                AwaitingVerificationBugs =
+                    awaitingVerificationBugs,
+
+                RecentReportedBugs =
+                    recentReportedBugs
+            };
+        }
+        private static TesterDashboardBugDto MapTesterBug(Bug bug)
+        {
+            string assignedDeveloperName = "Unassigned";
+
+            if (bug.AssignedDeveloper != null)
+            {
+                assignedDeveloperName =
+                    $"{bug.AssignedDeveloper.FirstName} " +
+                    $"{bug.AssignedDeveloper.LastName}";
+            }
+
+            return new TesterDashboardBugDto
+            {
+                BugId = bug.BugId,
+
+                Title = bug.Title,
+
+                ProjectId = bug.ProjectId,
+
+                ProjectName = bug.Project.ProjectName,
+
+                Priority = bug.Priority.ToString(),
+
+                Status = bug.Status.ToString(),
+
+                AssignedDeveloperId =
+                    bug.AssignedDeveloperId,
+
+                AssignedDeveloperName =
+                    assignedDeveloperName.Trim(),
+
+                CreatedAt = bug.CreatedAt,
+
+                UpdatedAt = bug.UpdatedAt
+            };
+        }
+        public async Task<DeveloperDashboardResponseDto>
+    GetDeveloperDashboardAsync(int currentUserId)
+        {
+            var activeMembership = await _dashboardRepository
+                .GetDeveloperActiveProjectMembershipAsync(currentUserId);
+
+            var developerBugs = await _dashboardRepository
+                .GetDeveloperBugsAsync(currentUserId);
+
+            var activeBugs = developerBugs
+                .Where(b =>
+                    b.Status == BugStatus.Assigned ||
+                    b.Status == BugStatus.InProgress)
+                .OrderByDescending(b => b.Priority)
+                .ThenBy(b => b.CreatedAt)
+                .ToList();
+
+            var recentlyResolvedBugs = developerBugs
+                .Where(b => b.Status == BugStatus.Resolved)
+                .OrderByDescending(b =>
+                    b.UpdatedAt ?? b.CreatedAt)
+                .Take(5)
+                .Select(MapDeveloperBug)
+                .ToList();
+
+            return new DeveloperDashboardResponseDto
+            {
+                CurrentProject = activeMembership == null
+                    ? null
+                    : new DeveloperCurrentProjectDto
+                    {
+                        ProjectId =
+                            activeMembership.Project.ProjectId,
+
+                        ProjectCode =
+                            activeMembership.Project.ProjectCode,
+
+                        ProjectName =
+                            activeMembership.Project.ProjectName,
+
+                        ProjectManagerName =
+                            $"{activeMembership.Project.CreatedByUser.FirstName} " +
+                            $"{activeMembership.Project.CreatedByUser.LastName}",
+
+                        Status =
+                            activeMembership.Project.Status.ToString()
+                    },
+
+                AssignedBugs = developerBugs.Count(b =>
+                    b.Status == BugStatus.Assigned),
+
+                InProgressBugs = developerBugs.Count(b =>
+                    b.Status == BugStatus.InProgress),
+
+                ResolvedBugs = developerBugs.Count(b =>
+                    b.Status == BugStatus.Resolved),
+
+                CriticalActiveBugs = activeBugs.Count(b =>
+                    b.Priority == BugPriority.Critical),
+
+                BugsByStatus = new DeveloperBugStatusOverviewDto
+                {
+                    Assigned = developerBugs.Count(b =>
+                        b.Status == BugStatus.Assigned),
+
+                    InProgress = developerBugs.Count(b =>
+                        b.Status == BugStatus.InProgress),
+
+                    Resolved = developerBugs.Count(b =>
+                        b.Status == BugStatus.Resolved),
+
+                    Closed = developerBugs.Count(b =>
+                        b.Status == BugStatus.Closed)
+                },
+
+                ActiveBugsByPriority = new DeveloperPriorityOverviewDto
+                {
+                    Low = activeBugs.Count(b =>
+                        b.Priority == BugPriority.Low),
+
+                    Medium = activeBugs.Count(b =>
+                        b.Priority == BugPriority.Medium),
+
+                    High = activeBugs.Count(b =>
+                        b.Priority == BugPriority.High),
+
+                    Critical = activeBugs.Count(b =>
+                        b.Priority == BugPriority.Critical)
+                },
+
+                ActiveBugs = activeBugs
+                    .Take(5)
+                    .Select(MapDeveloperBug)
+                    .ToList(),
+
+                RecentlyResolvedBugs = recentlyResolvedBugs
+            };
+        }
+        private static DeveloperDashboardBugDto MapDeveloperBug(
+    Bug bug)
+        {
+            return new DeveloperDashboardBugDto
+            {
+                BugId = bug.BugId,
+
+                Title = bug.Title,
+
+                ProjectId = bug.ProjectId,
+
+                ProjectName = bug.Project.ProjectName,
+
+                Priority = bug.Priority.ToString(),
+
+                Status = bug.Status.ToString(),
+
+                ReporterId = bug.ReportedByUserId,
+
+                ReporterName =
+                    $"{bug.ReportedByUser.FirstName} " +
+                    $"{bug.ReportedByUser.LastName}",
+
+                CreatedAt = bug.CreatedAt,
+
+                UpdatedAt = bug.UpdatedAt
+            };
+        }
     }
 }

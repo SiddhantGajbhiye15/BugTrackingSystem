@@ -17,7 +17,14 @@ namespace BugTrackingSystem.Repositories.Interfaces
         Task<List<Project>> GetProjectManagerProjectsAsync(
             int projectManagerId);
 
-        Task<List<Bug>> GetProjectManagerBugsAsync(
-            int projectManagerId);
+        Task<List<Bug>> GetProjectManagerBugsAsync(int projectManagerId);
+        Task<ProjectMember?> GetTesterActiveProjectMembershipAsync(int testerId);
+
+        Task<List<Bug>> GetTesterReportedBugsAsync(int testerId);
+        Task<ProjectMember?> GetDeveloperActiveProjectMembershipAsync(
+    int developerId);
+
+        Task<List<Bug>> GetDeveloperBugsAsync(
+            int developerId);
     }
 }

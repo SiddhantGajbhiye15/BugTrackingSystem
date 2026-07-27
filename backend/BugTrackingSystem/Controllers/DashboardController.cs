@@ -61,5 +61,31 @@ namespace BugTrackingSystem.Controllers
 
             return currentUserId;
         }
+        // GET: /api/dashboard/tester
+        [HttpGet("tester")]
+        [Authorize(Roles = "Tester")]
+        public async Task<ActionResult<TesterDashboardResponseDto>>
+            GetTesterDashboard()
+        {
+            int currentUserId = GetCurrentUserId();
+
+            var dashboard = await _dashboardService
+                .GetTesterDashboardAsync(currentUserId);
+
+            return Ok(dashboard);
+        }
+        // GET: /api/dashboard/developer
+        [HttpGet("developer")]
+        [Authorize(Roles = "Developer")]
+        public async Task<ActionResult<DeveloperDashboardResponseDto>>
+            GetDeveloperDashboard()
+        {
+            int currentUserId = GetCurrentUserId();
+
+            var dashboard = await _dashboardService
+                .GetDeveloperDashboardAsync(currentUserId);
+
+            return Ok(dashboard);
+        }
     }
 }

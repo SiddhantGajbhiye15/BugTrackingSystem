@@ -10,5 +10,11 @@ namespace BugTrackingSystem.Services.Interfaces
         Task<ProjectManagerDashboardResponseDto>
             GetProjectManagerDashboardAsync(
                 int currentUserId);
+
+        Task<TesterDashboardResponseDto>
+            GetTesterDashboardAsync(
+                int currentUserId);
+        Task<DeveloperDashboardResponseDto>
+            GetDeveloperDashboardAsync(int currentUserId);
     }
 }
