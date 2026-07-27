@@ -82,6 +82,7 @@ builder.Services.AddScoped<
     IDashboardService,
     DashboardService>();
 
+
 builder.Services.AddScoped<JwtTokenGenerator>();
 
 // JWT Authentication

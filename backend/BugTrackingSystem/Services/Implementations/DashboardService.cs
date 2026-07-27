@@ -125,5 +125,193 @@ namespace BugTrackingSystem.Services.Implementations
                 CreatedAt = project.CreatedAt
             };
         }
+        public async Task<ProjectManagerDashboardResponseDto>
+    GetProjectManagerDashboardAsync(int currentUserId)
+        {
+            var projects = await _dashboardRepository
+                .GetProjectManagerProjectsAsync(currentUserId);
+
+            var bugs = await _dashboardRepository
+                .GetProjectManagerBugsAsync(currentUserId);
+
+            var unassignedAndUrgentBugs = bugs
+                .Where(b =>
+                    b.Status != BugStatus.Closed &&
+                    (
+                        b.AssignedDeveloperId == null ||
+                        b.Priority == BugPriority.Critical
+                    ))
+                .OrderByDescending(b => b.Priority)
+                .ThenBy(b => b.CreatedAt)
+                .Take(5)
+                .Select(MapProjectManagerBug)
+                .ToList();
+
+            var projectsOverview = projects
+                .Take(5)
+                .Select(project =>
+                {
+                    var projectBugs = bugs
+                        .Where(b =>
+                            b.ProjectId == project.ProjectId)
+                        .ToList();
+
+                    return new ProjectManagerProjectDto
+                    {
+                        ProjectId = project.ProjectId,
+
+                        ProjectCode = project.ProjectCode,
+
+                        ProjectName = project.ProjectName,
+
+                        Status = project.Status.ToString(),
+
+                        ActiveMemberCount =
+                            project.ProjectMembers.Count(pm =>
+                                pm.RemovedDate == null),
+
+                        OpenBugCount = projectBugs.Count(b =>
+                            b.Status == BugStatus.Open),
+
+                        CriticalBugCount = projectBugs.Count(b =>
+                            b.Priority == BugPriority.Critical &&
+                            b.Status != BugStatus.Closed)
+                    };
+                })
+                .ToList();
+
+            var developerWorkload = projects
+                .SelectMany(project =>
+                    project.ProjectMembers
+                        .Where(pm =>
+                            pm.RemovedDate == null &&
+                            pm.User.Role == UserRole.Developer)
+                        .Select(pm =>
+                        {
+                            var developerBugs = bugs
+                                .Where(b =>
+                                    b.ProjectId == project.ProjectId &&
+                                    b.AssignedDeveloperId == pm.UserId)
+                                .ToList();
+
+                            return new DeveloperWorkloadDto
+                            {
+                                DeveloperId = pm.UserId,
+
+                                DeveloperName =
+                                    $"{pm.User.FirstName} " +
+                                    $"{pm.User.LastName}".Trim(),
+
+                                ProjectId = project.ProjectId,
+
+                                ProjectName = project.ProjectName,
+
+                                AssignedCount = developerBugs.Count(b =>
+                                    b.Status == BugStatus.Assigned),
+
+                                InProgressCount = developerBugs.Count(b =>
+                                    b.Status == BugStatus.InProgress),
+
+                                ResolvedCount = developerBugs.Count(b =>
+                                    b.Status == BugStatus.Resolved)
+                            };
+                        }))
+                .OrderByDescending(d =>
+                    d.AssignedCount + d.InProgressCount)
+                .Take(5)
+                .ToList();
+
+            return new ProjectManagerDashboardResponseDto
+            {
+                TotalProjects = projects.Count,
+
+                OpenBugs = bugs.Count(b =>
+                    b.Status == BugStatus.Open),
+
+                UnassignedBugs = bugs.Count(b =>
+                    b.AssignedDeveloperId == null &&
+                    b.Status != BugStatus.Closed),
+
+                CriticalBugs = bugs.Count(b =>
+                    b.Priority == BugPriority.Critical &&
+                    b.Status != BugStatus.Closed),
+
+                BugsByStatus = new BugStatusOverviewDto
+                {
+                    Open = bugs.Count(b =>
+                        b.Status == BugStatus.Open),
+
+                    Assigned = bugs.Count(b =>
+                        b.Status == BugStatus.Assigned),
+
+                    InProgress = bugs.Count(b =>
+                        b.Status == BugStatus.InProgress),
+
+                    Resolved = bugs.Count(b =>
+                        b.Status == BugStatus.Resolved),
+
+                    Closed = bugs.Count(b =>
+                        b.Status == BugStatus.Closed),
+
+                    Reopened = bugs.Count(b =>
+                        b.Status == BugStatus.Reopened)
+                },
+
+                UnassignedAndUrgentBugs =
+                    unassignedAndUrgentBugs,
+
+                ProjectsOverview = projectsOverview,
+
+                DeveloperWorkload = developerWorkload,
+
+                RecentBugs = bugs
+                    .OrderByDescending(b => b.CreatedAt)
+                    .Take(5)
+                    .Select(MapProjectManagerBug)
+                    .ToList()
+            };
+        }
+        private static ProjectManagerBugDto MapProjectManagerBug(Bug bug)
+        {
+            string reporterName =
+                $"{bug.ReportedByUser.FirstName} " +
+                $"{bug.ReportedByUser.LastName}";
+
+            string assignedDeveloperName = "Unassigned";
+
+            if (bug.AssignedDeveloper != null)
+            {
+                assignedDeveloperName =
+                    $"{bug.AssignedDeveloper.FirstName} " +
+                    $"{bug.AssignedDeveloper.LastName}";
+            }
+
+            return new ProjectManagerBugDto
+            {
+                BugId = bug.BugId,
+
+                Title = bug.Title,
+
+                ProjectId = bug.ProjectId,
+
+                ProjectName = bug.Project.ProjectName,
+
+                Priority = bug.Priority.ToString(),
+
+                Status = bug.Status.ToString(),
+
+                ReporterName = reporterName.Trim(),
+
+                AssignedDeveloperId =
+                    bug.AssignedDeveloperId,
+
+                AssignedDeveloperName =
+                    assignedDeveloperName.Trim(),
+
+                CreatedAt = bug.CreatedAt,
+
+                UpdatedAt = bug.UpdatedAt
+            };
+        }
     }
 }
