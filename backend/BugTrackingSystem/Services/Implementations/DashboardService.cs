@@ -77,7 +77,7 @@ namespace BugTrackingSystem.Services.Implementations
 
             if (user.Role == UserRole.ProjectManager)
             {
-                int projectCount = user.CreatedProjects.Count;
+                int projectCount = user.ManagedProjects.Count;
 
                 if (projectCount == 0)
                 {
@@ -86,7 +86,7 @@ namespace BugTrackingSystem.Services.Implementations
 
                 if (projectCount == 1)
                 {
-                    return user.CreatedProjects
+                    return user.ManagedProjects
                         .First()
                         .ProjectName;
                 }
@@ -112,10 +112,11 @@ namespace BugTrackingSystem.Services.Implementations
 
                 ProjectName = project.ProjectName,
 
-               
-                ProjectManagerName =
-                    $"{project.CreatedByUser.FirstName} " +
-                    $"{project.CreatedByUser.LastName}",
+
+                ProjectManagerName = project.ProjectManager == null
+                    ? "Not Assigned"
+                    : $"{project.ProjectManager.FirstName} " +
+                      $"{project.ProjectManager.LastName}",
 
                 ActiveMemberCount = project.ProjectMembers.Count(
                     pm => pm.RemovedDate == null),
@@ -351,8 +352,10 @@ namespace BugTrackingSystem.Services.Implementations
                             activeMembership.Project.ProjectName,
 
                         ProjectManagerName =
-                            $"{activeMembership.Project.CreatedByUser.FirstName} " +
-                            $"{activeMembership.Project.CreatedByUser.LastName}",
+                            activeMembership.Project.ProjectManager == null
+                                ? "Not Assigned"
+                                : $"{activeMembership.Project.ProjectManager.FirstName} " +
+                                  $"{activeMembership.Project.ProjectManager.LastName}",
 
                         Status =
                             activeMembership.Project.Status.ToString()
@@ -474,8 +477,10 @@ namespace BugTrackingSystem.Services.Implementations
                             activeMembership.Project.ProjectName,
 
                         ProjectManagerName =
-                            $"{activeMembership.Project.CreatedByUser.FirstName} " +
-                            $"{activeMembership.Project.CreatedByUser.LastName}",
+                            activeMembership.Project.ProjectManager == null
+                                ? "Not Assigned"
+                                : $"{activeMembership.Project.ProjectManager.FirstName} " +
+                                  $"{activeMembership.Project.ProjectManager.LastName}",
 
                         Status =
                             activeMembership.Project.Status.ToString()

@@ -34,7 +34,7 @@ namespace BugTrackingSystem.Repositories.Implementations
                 .Include(u => u.ProjectMemberships
                     .Where(pm => pm.RemovedDate == null))
                     .ThenInclude(pm => pm.Project)
-                .Include(u => u.CreatedProjects)
+                .Include(u => u.ManagedProjects)
                 .OrderByDescending(u => u.CreatedAt)
                 .Take(count)
                 .AsSplitQuery()
@@ -47,6 +47,7 @@ namespace BugTrackingSystem.Repositories.Implementations
             return await _context.Projects
                 .AsNoTracking()
                 .Include(p => p.CreatedByUser)
+                .Include(p => p.ProjectManager)
                 .Include(p => p.ProjectMembers
                     .Where(pm => pm.RemovedDate == null))
                 .OrderByDescending(p => p.CreatedAt)
@@ -62,7 +63,8 @@ namespace BugTrackingSystem.Repositories.Implementations
         {
             return await _context.Projects
                 .AsNoTracking()
-                .Where(p => p.CreatedBy == projectManagerId)
+                .Where(p =>
+                    p.ProjectManagerId == projectManagerId)
                 .Include(p => p.ProjectMembers
                     .Where(pm => pm.RemovedDate == null))
                     .ThenInclude(pm => pm.User)
@@ -77,15 +79,16 @@ namespace BugTrackingSystem.Repositories.Implementations
             return await _context.Bugs
                 .AsNoTracking()
                 .Where(b =>
-                    b.Project.CreatedBy == projectManagerId)
+                    b.Project.ProjectManagerId == projectManagerId)
                 .Include(b => b.Project)
                 .Include(b => b.ReportedByUser)
                 .Include(b => b.AssignedDeveloper)
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
         }
+
         public async Task<ProjectMember?>
-    GetTesterActiveProjectMembershipAsync(int testerId)
+            GetTesterActiveProjectMembershipAsync(int testerId)
         {
             return await _context.ProjectMembers
                 .AsNoTracking()
@@ -94,7 +97,7 @@ namespace BugTrackingSystem.Repositories.Implementations
                     pm.RemovedDate == null &&
                     pm.Project.Status == ProjectStatus.Active)
                 .Include(pm => pm.Project)
-                    .ThenInclude(p => p.CreatedByUser)
+                    .ThenInclude(p => p.ProjectManager)
                 .FirstOrDefaultAsync();
         }
 
@@ -109,8 +112,9 @@ namespace BugTrackingSystem.Repositories.Implementations
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
         }
+
         public async Task<ProjectMember?>
-        GetDeveloperActiveProjectMembershipAsync(int developerId)
+            GetDeveloperActiveProjectMembershipAsync(int developerId)
         {
             return await _context.ProjectMembers
                 .AsNoTracking()
@@ -119,7 +123,7 @@ namespace BugTrackingSystem.Repositories.Implementations
                     pm.RemovedDate == null &&
                     pm.Project.Status == ProjectStatus.Active)
                 .Include(pm => pm.Project)
-                    .ThenInclude(p => p.CreatedByUser)
+                    .ThenInclude(p => p.ProjectManager)
                 .FirstOrDefaultAsync();
         }
 

@@ -3,7 +3,7 @@ using BugTrackingSystem.Entities;
 using BugTrackingSystem.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace BugTrackingSystem.Repositories
+namespace BugTrackingSystem.Repositories.Implementation
 {
     public class UserRepository : IUserRepository
     {

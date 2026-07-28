@@ -18,7 +18,9 @@ namespace BugTrackingSystem.Interfaces
             UpdateProjectRequestDto request,
             int currentUserId
         );
-
+        Task<ProjectResponseDto?> ChangeManagerAsync(
+            int projectId,
+            ChangeProjectManagerRequestDto request);
         Task<bool> DeleteAsync(
             int projectId,
             int currentUserId

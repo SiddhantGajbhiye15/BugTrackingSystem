@@ -31,14 +31,12 @@ namespace BugTrackingSystem.Controllers
                 var project =
                     await _projectService.CreateAsync(
                         request,
-                        currentUserId
-                    );
+                        currentUserId);
 
                 return CreatedAtAction(
                     nameof(GetProjectById),
                     new { id = project.ProjectId },
-                    project
-                );
+                    project);
             }
             catch (InvalidOperationException exception)
             {
@@ -91,8 +89,7 @@ namespace BugTrackingSystem.Controllers
                     await _projectService.UpdateAsync(
                         id,
                         request,
-                        currentUserId
-                    );
+                        currentUserId);
 
                 if (project == null)
                 {
@@ -111,8 +108,39 @@ namespace BugTrackingSystem.Controllers
                     new
                     {
                         Message = exception.Message
-                    }
-                );
+                    });
+            }
+        }
+
+        [HttpPatch("{id:int}/manager")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ChangeProjectManager(
+            int id,
+            ChangeProjectManagerRequestDto request)
+        {
+            try
+            {
+                var project =
+                    await _projectService.ChangeManagerAsync(
+                        id,
+                        request);
+
+                if (project == null)
+                {
+                    return NotFound(new
+                    {
+                        Message = "Project not found."
+                    });
+                }
+
+                return Ok(project);
+            }
+            catch (InvalidOperationException exception)
+            {
+                return BadRequest(new
+                {
+                    Message = exception.Message
+                });
             }
         }
 
@@ -127,8 +155,7 @@ namespace BugTrackingSystem.Controllers
                 var deleted =
                     await _projectService.DeleteAsync(
                         id,
-                        currentUserId
-                    );
+                        currentUserId);
 
                 if (!deleted)
                 {
@@ -150,8 +177,7 @@ namespace BugTrackingSystem.Controllers
                     new
                     {
                         Message = exception.Message
-                    }
-                );
+                    });
             }
             catch (InvalidOperationException exception)
             {

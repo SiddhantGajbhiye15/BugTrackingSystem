@@ -25,14 +25,12 @@ namespace BugTrackingSystem.Services
 
             var codeExists =
                 await _projectRepository.ProjectCodeExistsAsync(
-                    normalizedProjectCode
-                );
+                    normalizedProjectCode);
 
             if (codeExists)
             {
                 throw new InvalidOperationException(
-                    "Project code already exists."
-                );
+                    "Project code already exists.");
             }
 
             var project = new Project
@@ -41,7 +39,13 @@ namespace BugTrackingSystem.Services
                 ProjectName = request.ProjectName.Trim(),
                 Description = request.Description.Trim(),
                 Status = ProjectStatus.Active,
+
+                // Original creator
                 CreatedBy = currentUserId,
+
+                // Current manager
+                ProjectManagerId = currentUserId,
+
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -49,8 +53,7 @@ namespace BugTrackingSystem.Services
             await _projectRepository.SaveChangesAsync();
 
             project = await _projectRepository.GetByIdAsync(
-                project.ProjectId
-            );
+                project.ProjectId);
 
             return MapToResponseDto(project!);
         }
@@ -92,11 +95,10 @@ namespace BugTrackingSystem.Services
                 return null;
             }
 
-            if (project.CreatedBy != currentUserId)
+            if (project.ProjectManagerId != currentUserId)
             {
                 throw new UnauthorizedAccessException(
-                    "You can update only projects created by you."
-                );
+                    "Only the current Project Manager can update this project.");
             }
 
             project.ProjectName = request.ProjectName.Trim();
@@ -107,6 +109,57 @@ namespace BugTrackingSystem.Services
             await _projectRepository.SaveChangesAsync();
 
             return MapToResponseDto(project);
+        }
+
+        public async Task<ProjectResponseDto?> ChangeManagerAsync(
+            int projectId,
+            ChangeProjectManagerRequestDto request)
+        {
+            var project =
+                await _projectRepository.GetByIdAsync(projectId);
+
+            if (project == null)
+            {
+                return null;
+            }
+
+            var newManager =
+                await _projectRepository.GetUserByIdAsync(
+                    request.ProjectManagerId);
+
+            if (newManager == null)
+            {
+                throw new InvalidOperationException(
+                    "Selected user was not found.");
+            }
+
+            if (!newManager.IsActive)
+            {
+                throw new InvalidOperationException(
+                    "Inactive user cannot manage a project.");
+            }
+
+            if (newManager.Role != UserRole.ProjectManager)
+            {
+                throw new InvalidOperationException(
+                    "Selected user must be a Project Manager.");
+            }
+
+            if (project.ProjectManagerId == newManager.UserId)
+            {
+                throw new InvalidOperationException(
+                    "This user is already managing the project.");
+            }
+
+            project.ProjectManagerId = newManager.UserId;
+            project.UpdatedAt = DateTime.UtcNow;
+
+            await _projectRepository.SaveChangesAsync();
+
+            project = await _projectRepository.GetByIdAsync(
+                projectId);
+
+            return MapToResponseDto(project!);
         }
 
         public async Task<bool> DeleteAsync(
@@ -121,23 +174,20 @@ namespace BugTrackingSystem.Services
                 return false;
             }
 
-            if (project.CreatedBy != currentUserId)
+            if (project.ProjectManagerId != currentUserId)
             {
                 throw new UnauthorizedAccessException(
-                    "You can delete only projects created by you."
-                );
+                    "Only the current Project Manager can delete this project.");
             }
 
             var hasMembersOrBugs =
                 await _projectRepository.HasMembersOrBugsAsync(
-                    projectId
-                );
+                    projectId);
 
             if (hasMembersOrBugs)
             {
                 throw new InvalidOperationException(
-                    "A project containing members or bugs cannot be deleted."
-                );
+                    "A project containing members or bugs cannot be deleted.");
             }
 
             _projectRepository.Delete(project);
@@ -156,10 +206,21 @@ namespace BugTrackingSystem.Services
                 ProjectName = project.ProjectName,
                 Description = project.Description,
                 Status = project.Status,
+
                 CreatedBy = project.CreatedBy,
+
                 CreatedByName =
                     $"{project.CreatedByUser.FirstName} " +
                     $"{project.CreatedByUser.LastName}",
+
+                ProjectManagerId = project.ProjectManagerId,
+
+                ProjectManagerName =
+                    project.ProjectManager == null
+                        ? "Not Assigned"
+                        : $"{project.ProjectManager.FirstName} " +
+                          $"{project.ProjectManager.LastName}",
+
                 CreatedAt = project.CreatedAt,
                 UpdatedAt = project.UpdatedAt
             };

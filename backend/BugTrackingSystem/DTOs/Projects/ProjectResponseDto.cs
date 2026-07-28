@@ -9,6 +9,10 @@ namespace BugTrackingSystem.DTOs.Projects
         public string ProjectCode { get; set; } = string.Empty;
 
         public string ProjectName { get; set; } = string.Empty;
+        public int? ProjectManagerId { get; set; }
+
+        public string ProjectManagerName { get; set; }
+            = "Not Assigned";
 
         public string Description { get; set; } = string.Empty;
 

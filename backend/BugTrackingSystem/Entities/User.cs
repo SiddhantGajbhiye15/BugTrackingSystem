@@ -22,6 +22,7 @@ namespace BugTrackingSystem.Entities
 
         public DateTime? UpdatedAt { get; set; }
         public ICollection<Project> CreatedProjects { get; set; } = new List<Project>();
+        public ICollection<Project> ManagedProjects { get; set; } = new List<Project>();
 
         public ICollection<ProjectMember> ProjectMemberships { get; set; } = new List<ProjectMember>();
 

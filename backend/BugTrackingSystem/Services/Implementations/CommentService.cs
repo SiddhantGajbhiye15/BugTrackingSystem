@@ -190,15 +190,15 @@ namespace BugTrackingSystem.Services.Implementations
                 return;
             }
 
-            bool isProjectCreator =
-                bug.Project.CreatedBy == currentUserId;
+            bool isProjectManager =
+                bug.Project.ProjectManagerId == currentUserId;
 
             bool isActiveMember =
                 bug.Project.ProjectMembers.Any(pm =>
                     pm.UserId == currentUserId &&
                     pm.RemovedDate == null);
 
-            if (!isProjectCreator && !isActiveMember)
+            if (!isProjectManager && !isActiveMember)
             {
                 throw new UnauthorizedAccessException(
                     "You do not have access to this bug's comments.");

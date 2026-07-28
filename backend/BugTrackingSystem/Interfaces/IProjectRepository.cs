@@ -1,4 +1,5 @@
-﻿using BugTrackingSystem.Entities;
+﻿
+using BugTrackingSystem.Entities;
 
 namespace BugTrackingSystem.Interfaces
 {
@@ -13,6 +14,8 @@ namespace BugTrackingSystem.Interfaces
         Task<bool> HasMembersOrBugsAsync(int projectId);
 
         Task AddAsync(Project project);
+
+        Task<User?> GetUserByIdAsync(int userId);
 
         void Delete(Project project);
 

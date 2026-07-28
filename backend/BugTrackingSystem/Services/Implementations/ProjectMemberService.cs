@@ -210,10 +210,10 @@ namespace BugTrackingSystem.Services.Implementations
                     "Project not found.");
             }
 
-            if (project.CreatedBy != currentUserId)
+            if (project.ProjectManagerId != currentUserId)
             {
                 throw new UnauthorizedAccessException(
-                    "Only the Project Manager who created this project can manage its members.");
+                    "Only the current Project Manager can manage its members.");
             }
         }
 

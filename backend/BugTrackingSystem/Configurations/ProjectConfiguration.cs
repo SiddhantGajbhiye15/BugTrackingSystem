@@ -39,6 +39,11 @@ namespace BugTrackingSystem.Configurations
                 .HasForeignKey(p => p.CreatedBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(p => p.ProjectManager)
+                .WithMany(u => u.ManagedProjects)
+                .HasForeignKey(p => p.ProjectManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasMany(p => p.ProjectMembers)
                 .WithOne(pm => pm.Project)
                 .HasForeignKey(pm => pm.ProjectId)

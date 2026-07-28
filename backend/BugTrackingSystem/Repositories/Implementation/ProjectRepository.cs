@@ -2,8 +2,8 @@
 using BugTrackingSystem.Entities;
 using BugTrackingSystem.Interfaces;
 using Microsoft.EntityFrameworkCore;
-
-namespace BugTrackingSystem.Repositories
+using BugTrackingSystem.Enums;
+namespace BugTrackingSystem.Repositories.Implementation
 {
     public class ProjectRepository : IProjectRepository
     {
@@ -19,6 +19,7 @@ namespace BugTrackingSystem.Repositories
             return await _context.Projects
                 .AsNoTracking()
                 .Include(p => p.CreatedByUser)
+                .Include(p => p.ProjectManager)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
@@ -27,10 +28,12 @@ namespace BugTrackingSystem.Repositories
         {
             return await _context.Projects
                 .Include(p => p.CreatedByUser)
+                .Include(p => p.ProjectManager)
                 .FirstOrDefaultAsync(p =>
-                    p.ProjectId == projectId
-                );
+                    p.ProjectId == projectId);
         }
+        
+
 
         public async Task<bool> ProjectCodeExistsAsync(
             string projectCode)
@@ -53,10 +56,17 @@ namespace BugTrackingSystem.Repositories
             return await _context.Bugs
                 .AnyAsync(b => b.ProjectId == projectId);
         }
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+        }
+        
 
         public async Task AddAsync(Project project)
         {
             await _context.Projects.AddAsync(project);
+
         }
 
         public void Delete(Project project)
@@ -68,5 +78,7 @@ namespace BugTrackingSystem.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+       
     }
 }

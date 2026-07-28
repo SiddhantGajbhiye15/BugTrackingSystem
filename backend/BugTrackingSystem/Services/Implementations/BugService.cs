@@ -443,7 +443,7 @@ namespace BugTrackingSystem.Services.Implementations
 
             bool isProjectManager =
                 currentUserRole == UserRole.ProjectManager &&
-                bug.Project.CreatedBy == currentUserId;
+                bug.Project.ProjectManagerId == currentUserId;
 
             bool isReportingTester =
                 currentUserRole == UserRole.Tester &&
@@ -486,7 +486,7 @@ namespace BugTrackingSystem.Services.Implementations
             }
 
             if (currentUserRole == UserRole.ProjectManager &&
-                project.CreatedBy == currentUserId)
+                project.ProjectManagerId == currentUserId)
             {
                 return;
             }
@@ -508,10 +508,10 @@ namespace BugTrackingSystem.Services.Implementations
             Project project,
             int currentUserId)
         {
-            if (project.CreatedBy != currentUserId)
+            if (project.ProjectManagerId != currentUserId)
             {
                 throw new UnauthorizedAccessException(
-                    "Only the Project Manager who created this project can perform this operation.");
+                    "Only the current Project Manager can perform this operation.");
             }
         }
 
