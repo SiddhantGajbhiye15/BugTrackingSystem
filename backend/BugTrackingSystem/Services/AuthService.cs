@@ -1,4 +1,5 @@
 ﻿using BugTrackingSystem.DTOs.Authentication;
+using BugTrackingSystem.Exceptions;
 using BugTrackingSystem.Helpers;
 using BugTrackingSystem.Interfaces;
 
@@ -16,32 +17,56 @@ namespace BugTrackingSystem.Services
             _userRepository = userRepository;
             _jwtTokenGenerator = jwtTokenGenerator;
         }
-        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
+
+        public async Task<LoginResponseDto> LoginAsync(
+            LoginRequestDto request)
         {
-            var user = await _userRepository.GetByEmailAsync(request.Email);
+            var normalizedEmail = request.Email
+                .Trim()
+                .ToLowerInvariant();
+
+            var user =
+                await _userRepository.GetByEmailAsync(
+                    normalizedEmail);
 
             if (user == null)
-                throw new Exception("Invalid email or password.");
+            {
+                throw new InvalidCredentialsException(
+                    "Invalid email or password.");
+            }
 
-            bool isPasswordValid = PasswordHasher.VerifyPassword(
-                request.Password,
-                user.PasswordHash);
+            bool isPasswordValid =
+                PasswordHasher.VerifyPassword(
+                    request.Password,
+                    user.PasswordHash);
 
             if (!isPasswordValid)
-                throw new Exception("Invalid email or password.");
+            {
+                throw new InvalidCredentialsException(
+                    "Invalid email or password.");
+            }
 
-            string token = _jwtTokenGenerator.GenerateToken(user);
+            if (!user.IsActive)
+            {
+                throw new InvalidCredentialsException(
+                    "Your account is inactive. Contact the administrator.");
+            }
+
+            string token =
+                _jwtTokenGenerator.GenerateToken(user);
 
             return new LoginResponseDto
             {
                 Token = token,
+
                 User = new UserResponseDto
                 {
                     UserId = user.UserId,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Email = user.Email,
-                    Role = user.Role
+                    Role = user.Role,
+                    IsActive = user.IsActive
                 }
             };
         }

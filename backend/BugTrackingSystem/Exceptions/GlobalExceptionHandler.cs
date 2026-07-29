@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using BugTrackingSystem.Exceptions;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,40 +26,79 @@ namespace BugTrackingSystem.Exceptions
 
             switch (exception)
             {
+                case InvalidCredentialsException:
+                    statusCode =
+                        StatusCodes.Status401Unauthorized;
+
+                    title =
+                        "Authentication Failed";
+
+                    detail =
+                        exception.Message;
+                    break;
+
                 case KeyNotFoundException:
-                    statusCode = StatusCodes.Status404NotFound;
-                    title = "Resource Not Found";
-                    detail = exception.Message;
+                    statusCode =
+                        StatusCodes.Status404NotFound;
+
+                    title =
+                        "Resource Not Found";
+
+                    detail =
+                        exception.Message;
                     break;
 
                 case UnauthorizedAccessException:
-                    statusCode = StatusCodes.Status403Forbidden;
-                    title = "Access Denied";
-                    detail = exception.Message;
+                    statusCode =
+                        StatusCodes.Status403Forbidden;
+
+                    title =
+                        "Access Denied";
+
+                    detail =
+                        exception.Message;
                     break;
 
                 case ArgumentException:
-                    statusCode = StatusCodes.Status400BadRequest;
-                    title = "Invalid Request";
-                    detail = exception.Message;
+                    statusCode =
+                        StatusCodes.Status400BadRequest;
+
+                    title =
+                        "Invalid Request";
+
+                    detail =
+                        exception.Message;
                     break;
 
                 case InvalidOperationException:
-                    statusCode = StatusCodes.Status400BadRequest;
-                    title = "Business Rule Violation";
-                    detail = exception.Message;
+                    statusCode =
+                        StatusCodes.Status400BadRequest;
+
+                    title =
+                        "Business Rule Violation";
+
+                    detail =
+                        exception.Message;
                     break;
 
                 case DbUpdateConcurrencyException:
-                    statusCode = StatusCodes.Status409Conflict;
-                    title = "Data Conflict";
+                    statusCode =
+                        StatusCodes.Status409Conflict;
+
+                    title =
+                        "Data Conflict";
+
                     detail =
                         "The record was modified by another operation.";
                     break;
 
                 case DbUpdateException:
-                    statusCode = StatusCodes.Status409Conflict;
-                    title = "Database Conflict";
+                    statusCode =
+                        StatusCodes.Status409Conflict;
+
+                    title =
+                        "Database Conflict";
+
                     detail =
                         "The requested operation conflicts with existing data.";
                     break;
@@ -67,7 +107,8 @@ namespace BugTrackingSystem.Exceptions
                     statusCode =
                         StatusCodes.Status500InternalServerError;
 
-                    title = "Internal Server Error";
+                    title =
+                        "Internal Server Error";
 
                     detail =
                         "An unexpected error occurred. Please try again.";
