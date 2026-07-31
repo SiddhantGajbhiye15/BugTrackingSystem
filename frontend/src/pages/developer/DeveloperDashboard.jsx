@@ -3,6 +3,7 @@ import {
   AlertCircle,
   Bug,
   CheckCircle2,
+  Eye,
   FolderKanban,
   LogOut,
   Play,
@@ -332,47 +333,59 @@ function DeveloperDashboard() {
                     </td>
 
                     <td className="p-4">
-                      {bug.status === "Assigned" && (
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() =>
-                            changeBugStatus(
-                              bug.bugId,
-                              3
-                            )
+                            navigate(`/bugs/${bug.bugId}`)
                           }
-                          disabled={
-                            updatingBugId === bug.bugId
-                          }
-                          className="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium hover:bg-amber-500 disabled:opacity-50"
+                          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium hover:bg-blue-500"
                         >
-                          <Play size={16} />
-
-                          {updatingBugId === bug.bugId
-                            ? "Updating..."
-                            : "Start Work"}
+                          <Eye size={16} />
+                          View Details
                         </button>
-                      )}
 
-                      {bug.status === "InProgress" && (
-                        <button
-                          onClick={() =>
-                            changeBugStatus(
-                              bug.bugId,
-                              4
-                            )
-                          }
-                          disabled={
-                            updatingBugId === bug.bugId
-                          }
-                          className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium hover:bg-green-500 disabled:opacity-50"
-                        >
-                          <CheckCircle2 size={16} />
+                        {bug.status === "Assigned" && (
+                          <button
+                            onClick={() =>
+                              changeBugStatus(
+                                bug.bugId,
+                                3
+                              )
+                            }
+                            disabled={
+                              updatingBugId === bug.bugId
+                            }
+                            className="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium hover:bg-amber-500 disabled:opacity-50"
+                          >
+                            <Play size={16} />
 
-                          {updatingBugId === bug.bugId
-                            ? "Updating..."
-                            : "Mark Resolved"}
-                        </button>
-                      )}
+                            {updatingBugId === bug.bugId
+                              ? "Updating..."
+                              : "Start Work"}
+                          </button>
+                        )}
+
+                        {bug.status === "InProgress" && (
+                          <button
+                            onClick={() =>
+                              changeBugStatus(
+                                bug.bugId,
+                                4
+                              )
+                            }
+                            disabled={
+                              updatingBugId === bug.bugId
+                            }
+                            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium hover:bg-green-500 disabled:opacity-50"
+                          >
+                            <CheckCircle2 size={16} />
+
+                            {updatingBugId === bug.bugId
+                              ? "Updating..."
+                              : "Mark Resolved"}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -409,6 +422,7 @@ function DeveloperDashboard() {
                   <th className="p-4">Priority</th>
                   <th className="p-4">Status</th>
                   <th className="p-4">Updated</th>
+                  <th className="p-4">Action</th>
                 </tr>
               </thead>
 
@@ -436,6 +450,18 @@ function DeveloperDashboard() {
                           bug.updatedAt || bug.createdAt
                         ).toLocaleDateString()}
                       </td>
+
+                      <td className="p-4">
+                        <button
+                          onClick={() =>
+                            navigate(`/bugs/${bug.bugId}`)
+                          }
+                          className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium hover:bg-blue-500"
+                        >
+                          <Eye size={16} />
+                          View
+                        </button>
+                      </td>
                     </tr>
                   )
                 )}
@@ -444,7 +470,7 @@ function DeveloperDashboard() {
                   ?.length === 0 && (
                   <tr>
                     <td
-                      colSpan="4"
+                      colSpan="5"
                       className="p-8 text-center text-slate-400"
                     >
                       No bugs resolved recently.

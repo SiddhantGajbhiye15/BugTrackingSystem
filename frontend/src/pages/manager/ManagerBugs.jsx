@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Bug,
+  Eye,
   Search,
   UserCheck,
 } from "lucide-react";
@@ -327,6 +328,16 @@ function ManagerBugs() {
                         <p className="mt-1 max-w-sm text-sm text-slate-400">
                           {bug.description}
                         </p>
+
+                        <button
+                          onClick={() =>
+                            navigate(`/bugs/${bug.bugId}`)
+                          }
+                          className="mt-3 flex items-center gap-2 rounded-lg bg-slate-800 px-3 py-2 text-sm text-slate-200 hover:bg-slate-700"
+                        >
+                          <Eye size={16} />
+                          View Details
+                        </button>
                       </td>
 
                       <td className="p-4">

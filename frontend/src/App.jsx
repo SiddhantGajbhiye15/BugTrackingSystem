@@ -11,6 +11,7 @@ import ManagerBugs from "./pages/manager/ManagerBugs";
 import TesterDashboard from "./pages/tester/TesterDashboard";
 import CreateBug from "./pages/tester/CreateBug";
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
+import BugDetails from "./pages/bugs/BugDetails";
 
 function App() {
   return (
@@ -103,6 +104,15 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={[4]}>
             <CreateBug />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/bugs/:bugId"
+        element={
+          <ProtectedRoute allowedRoles={[2, 3, 4]}>
+            <BugDetails />
           </ProtectedRoute>
         }
       />

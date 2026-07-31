@@ -4,6 +4,7 @@ import {
   Bug,
   CheckCircle2,
   ClipboardCheck,
+  Eye,
   FolderKanban,
   LogOut,
   Plus,
@@ -372,7 +373,17 @@ function TesterDashboard() {
                       </td>
 
                       <td className="p-4">
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() =>
+                              navigate(`/bugs/${bug.bugId}`)
+                            }
+                            className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium hover:bg-blue-500"
+                          >
+                            <Eye size={16} />
+                            View
+                          </button>
+
                           <button
                             onClick={() => verifyBug(bug.bugId, 5)}
                             disabled={updatingBugId === bug.bugId}
@@ -434,6 +445,7 @@ function TesterDashboard() {
                   <th className="p-4">Status</th>
                   <th className="p-4">Developer</th>
                   <th className="p-4">Created</th>
+                  <th className="p-4">Action</th>
                 </tr>
               </thead>
 
@@ -480,6 +492,18 @@ function TesterDashboard() {
                       <td className="p-4 text-slate-400">
                         {formatDate(bug.createdAt)}
                       </td>
+
+                      <td className="p-4">
+                        <button
+                          onClick={() =>
+                            navigate(`/bugs/${bug.bugId}`)
+                          }
+                          className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium hover:bg-blue-500"
+                        >
+                          <Eye size={16} />
+                          View
+                        </button>
+                      </td>
                     </tr>
                   )
                 )}
@@ -488,7 +512,7 @@ function TesterDashboard() {
                   0 && (
                   <tr>
                     <td
-                      colSpan="6"
+                      colSpan="7"
                       className="p-8 text-center text-slate-400"
                     >
                       You have not reported any bugs.
