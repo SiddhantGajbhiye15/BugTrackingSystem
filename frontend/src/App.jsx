@@ -1,18 +1,23 @@
-import { Navigate, Route, Routes } from "react-router";
+import { Route, Routes } from "react-router";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AllUsers from "./pages/admin/AllUsers";
 import AllProjects from "./pages/admin/AllProjects";
+
 import ProjectManagerDashboard from "./pages/manager/ProjectManagerDashboard";
 import ManagerProjects from "./pages/manager/ManagerProjects";
 import ManageProjectMembers from "./pages/manager/ManageProjectMembers";
 import ManagerBugs from "./pages/manager/ManagerBugs";
+
 import TesterDashboard from "./pages/tester/TesterDashboard";
 import CreateBug from "./pages/tester/CreateBug";
 import EditBug from "./pages/tester/EditBug";
+
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
 import BugDetails from "./pages/bugs/BugDetails";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -127,7 +132,7 @@ function App() {
         }
       />
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
