@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AllUsers from "./pages/admin/AllUsers";
 import AllProjects from "./pages/admin/AllProjects";
+import ProjectManagerDashboard from "./pages/manager/ProjectManagerDashboard";
 function App() {
   return (
     <Routes>
@@ -23,7 +24,7 @@ function App() {
         path="/manager/dashboard"
         element={
           <ProtectedRoute allowedRoles={[2]}>
-            <DashboardPage title="Project Manager Dashboard" />
+            <ProjectManagerDashboard />
           </ProtectedRoute>
         }
       />
@@ -61,6 +62,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      
 
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
