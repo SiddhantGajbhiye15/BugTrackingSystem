@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from "react-router";
-import Login from "./pages/Login";
+import Login from "./pages/LOgin";
 import DashboardPage from "./pages/DashboardPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -7,6 +7,7 @@ import AllUsers from "./pages/admin/AllUsers";
 import AllProjects from "./pages/admin/AllProjects";
 import ProjectManagerDashboard from "./pages/manager/ProjectManagerDashboard";
 import ManageProjectMembers from "./pages/manager/ManageProjectMembers";
+import ManagerBugs from "./pages/manager/ManagerBugs";
 function App() {
   return (
     <Routes>
@@ -37,6 +38,14 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/manager/projects/:projectId/bugs"
+  element={
+    <ProtectedRoute allowedRoles={[2]}>
+      <ManagerBugs />
+    </ProtectedRoute>
+  }
+/>
       <Route
         path="/developer/dashboard"
         element={
