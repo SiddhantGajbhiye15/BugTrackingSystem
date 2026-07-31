@@ -6,3 +6,16 @@ body {
   min-height: 100vh;
   font-family: Arial, sans-serif;
 }
+.form-input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(51 65 85);
+  background-color: rgb(2 6 23);
+  padding: 0.75rem 1rem;
+  color: white;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: rgb(59 130 246);
+}

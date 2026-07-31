@@ -8,6 +8,8 @@ import AllProjects from "./pages/admin/AllProjects";
 import ProjectManagerDashboard from "./pages/manager/ProjectManagerDashboard";
 import ManageProjectMembers from "./pages/manager/ManageProjectMembers";
 import ManagerBugs from "./pages/manager/ManagerBugs";
+import TesterDashboard from "./pages/tester/TesterDashboard";
+import CreateBug from "./pages/tester/CreateBug";
 function App() {
   return (
     <Routes>
@@ -59,10 +61,18 @@ function App() {
         path="/tester/dashboard"
         element={
           <ProtectedRoute allowedRoles={[4]}>
-            <DashboardPage title="Tester Dashboard" />
+            <TesterDashboard />
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/tester/projects/:projectId/bugs/create"
+  element={
+    <ProtectedRoute allowedRoles={[4]}>
+      <CreateBug />
+    </ProtectedRoute>
+  }
+/>
       <Route
         path="/admin/users"
         element={
