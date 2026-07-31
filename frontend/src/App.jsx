@@ -10,6 +10,7 @@ import ManageProjectMembers from "./pages/manager/ManageProjectMembers";
 import ManagerBugs from "./pages/manager/ManagerBugs";
 import TesterDashboard from "./pages/tester/TesterDashboard";
 import CreateBug from "./pages/tester/CreateBug";
+import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
 function App() {
   return (
     <Routes>
@@ -49,13 +50,13 @@ function App() {
   }
 />
       <Route
-        path="/developer/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={[3]}>
-            <DashboardPage title="Developer Dashboard" />
-          </ProtectedRoute>
-        }
-      />
+  path="/developer/dashboard"
+  element={
+    <ProtectedRoute allowedRoles={[3]}>
+      <DeveloperDashboard />
+    </ProtectedRoute>
+  }
+/>
 
       <Route
         path="/tester/dashboard"
