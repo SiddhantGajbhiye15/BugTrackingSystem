@@ -8,6 +8,7 @@ import {
   LogOut,
   Plus,
   RefreshCcw,
+  XCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import api from "../../api/axios";
@@ -18,6 +19,8 @@ function TesterDashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [updatingBugId, setUpdatingBugId] = useState(null);
 
   useEffect(() => {
     loadDashboard();
@@ -43,6 +46,33 @@ function TesterDashboard() {
       setLoading(false);
     }
   }
+  async function verifyBug(bugId, status) {
+  try {
+    setUpdatingBugId(bugId);
+    setError("");
+    setSuccess("");
+
+    await api.patch(`/api/bugs/${bugId}/status`, {
+      status,
+    });
+
+    setSuccess(
+      status === 5
+        ? "Bug closed successfully."
+        : "Bug reopened and sent back for fixing."
+    );
+
+    await loadDashboard();
+  } catch (requestError) {
+    setError(
+      requestError.response?.data?.detail ||
+        requestError.response?.data?.message ||
+        "Failed to update bug status."
+    );
+  } finally {
+    setUpdatingBugId(null);
+  }
+}
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -145,6 +175,11 @@ function TesterDashboard() {
           <div className="mb-6 flex items-center gap-3 rounded-lg bg-red-500/10 p-4 text-red-400">
             <AlertCircle size={20} />
             {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-6 rounded-lg bg-green-500/10 p-4 text-green-400">
+            {success}
           </div>
         )}
 
@@ -284,6 +319,7 @@ function TesterDashboard() {
                   <th className="p-4">Developer</th>
                   <th className="p-4">Status</th>
                   <th className="p-4">Updated</th>
+                  <th className="p-4">Action</th>
                 </tr>
               </thead>
 
@@ -334,6 +370,30 @@ function TesterDashboard() {
                           bug.updatedAt || bug.createdAt
                         )}
                       </td>
+
+                      <td className="p-4">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => verifyBug(bug.bugId, 5)}
+                            disabled={updatingBugId === bug.bugId}
+                            className="flex items-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <CheckCircle2 size={16} />
+                            {updatingBugId === bug.bugId
+                              ? "Updating..."
+                              : "Close"}
+                          </button>
+
+                          <button
+                            onClick={() => verifyBug(bug.bugId, 6)}
+                            disabled={updatingBugId === bug.bugId}
+                            className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <XCircle size={16} />
+                            Reopen
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   )
                 )}
@@ -342,7 +402,7 @@ function TesterDashboard() {
                   ?.length === 0 && (
                   <tr>
                     <td
-                      colSpan="5"
+                      colSpan="6"
                       className="p-8 text-center text-slate-400"
                     >
                       No resolved bugs are awaiting

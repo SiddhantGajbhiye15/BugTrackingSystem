@@ -273,7 +273,7 @@ function DeveloperDashboard() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1000px] text-left">
+            <table className="w-full min-w-250 text-left">
               <thead className="bg-slate-800/50 text-sm text-slate-400">
                 <tr>
                   <th className="p-4">Bug</th>
@@ -402,7 +402,7 @@ function DeveloperDashboard() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px] text-left">
+            <table className="w-full min-w-175 text-left">
               <thead className="bg-slate-800/50 text-sm text-slate-400">
                 <tr>
                   <th className="p-4">Bug</th>
