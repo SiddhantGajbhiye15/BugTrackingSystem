@@ -1,16 +1,17 @@
 import { Navigate, Route, Routes } from "react-router";
-import Login from "./pages/LOgin";
-import DashboardPage from "./pages/DashboardPage";
+import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AllUsers from "./pages/admin/AllUsers";
 import AllProjects from "./pages/admin/AllProjects";
 import ProjectManagerDashboard from "./pages/manager/ProjectManagerDashboard";
+import ManagerProjects from "./pages/manager/ManagerProjects";
 import ManageProjectMembers from "./pages/manager/ManageProjectMembers";
 import ManagerBugs from "./pages/manager/ManagerBugs";
 import TesterDashboard from "./pages/tester/TesterDashboard";
 import CreateBug from "./pages/tester/CreateBug";
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
+
 function App() {
   return (
     <Routes>
@@ -26,6 +27,24 @@ function App() {
       />
 
       <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute allowedRoles={[1]}>
+            <AllUsers />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/projects"
+        element={
+          <ProtectedRoute allowedRoles={[1]}>
+            <AllProjects />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/manager/dashboard"
         element={
           <ProtectedRoute allowedRoles={[2]}>
@@ -33,6 +52,16 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/manager/projects"
+        element={
+          <ProtectedRoute allowedRoles={[2]}>
+            <ManagerProjects />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/manager/projects/:projectId/members"
         element={
@@ -41,22 +70,24 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
-  path="/manager/projects/:projectId/bugs"
-  element={
-    <ProtectedRoute allowedRoles={[2]}>
-      <ManagerBugs />
-    </ProtectedRoute>
-  }
-/>
+        path="/manager/projects/:projectId/bugs"
+        element={
+          <ProtectedRoute allowedRoles={[2]}>
+            <ManagerBugs />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
-  path="/developer/dashboard"
-  element={
-    <ProtectedRoute allowedRoles={[3]}>
-      <DeveloperDashboard />
-    </ProtectedRoute>
-  }
-/>
+        path="/developer/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={[3]}>
+            <DeveloperDashboard />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/tester/dashboard"
@@ -66,31 +97,15 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
-  path="/tester/projects/:projectId/bugs/create"
-  element={
-    <ProtectedRoute allowedRoles={[4]}>
-      <CreateBug />
-    </ProtectedRoute>
-  }
-/>
-      <Route
-        path="/admin/users"
+        path="/tester/projects/:projectId/bugs/create"
         element={
-          <ProtectedRoute allowedRoles={[1]}>
-            <AllUsers />
+          <ProtectedRoute allowedRoles={[4]}>
+            <CreateBug />
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/admin/projects"
-        element={
-          <ProtectedRoute allowedRoles={[1]}>
-            <AllProjects />
-          </ProtectedRoute>
-        }
-      />
-      
 
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   Bug,
   FolderKanban,
+  FolderPlus,
   LogOut,
   Settings,
   Users,
@@ -21,28 +22,29 @@ function ProjectManagerDashboard() {
   const user = storedUser ? JSON.parse(storedUser) : null;
 
   useEffect(() => {
-    async function loadDashboard() {
-      try {
-        setLoading(true);
-        setError("");
-
-        const response = await api.get(
-          "/api/dashboard/project-manager"
-        );
-
-        setDashboard(response.data);
-      } catch (requestError) {
-        setError(
-          requestError.response?.data?.detail ||
-            "Failed to load Project Manager dashboard."
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadDashboard();
   }, []);
+
+  async function loadDashboard() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await api.get(
+        "/api/dashboard/project-manager"
+      );
+
+      setDashboard(response.data);
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.detail ||
+          requestError.response?.data?.message ||
+          "Failed to load Project Manager dashboard."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -60,10 +62,19 @@ function ProjectManagerDashboard() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
-        <p className="rounded-xl bg-red-500/10 p-4 text-red-400">
-          {error}
-        </p>
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 p-6">
+        <div className="text-center">
+          <p className="mb-4 rounded-xl bg-red-500/10 p-4 text-red-400">
+            {error}
+          </p>
+
+          <button
+            onClick={loadDashboard}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-500"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
@@ -71,7 +82,7 @@ function ProjectManagerDashboard() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <header className="border-b border-slate-800 bg-slate-900 px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-2xl font-bold">
               Project Manager Dashboard
@@ -82,13 +93,23 @@ function ProjectManagerDashboard() {
             </p>
           </div>
 
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-medium hover:bg-red-500"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate("/manager/projects")}
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium hover:bg-blue-500"
+            >
+              <FolderPlus size={18} />
+              Manage Projects
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-medium hover:bg-red-500"
+            >
+              <LogOut size={18} />
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
@@ -147,14 +168,14 @@ function ProjectManagerDashboard() {
         <DataTable
           title="Projects Overview"
           emptyMessage="No projects are currently assigned to you."
-         headers={[
+          headers={[
             "Project",
             "Code",
             "Status",
             "Members",
             "Open Bugs",
             "Critical Bugs",
-            "Action",
+            "Actions",
           ]}
         >
           {dashboard.projectsOverview.map((project) => (
@@ -162,6 +183,28 @@ function ProjectManagerDashboard() {
               key={project.projectId}
               className="border-t border-slate-800"
             >
+              <td className="p-4 font-medium">
+                {project.projectName}
+              </td>
+
+              <td className="p-4 text-slate-400">
+                {project.projectCode}
+              </td>
+
+              <td className="p-4">{project.status}</td>
+
+              <td className="p-4">
+                {project.activeMemberCount}
+              </td>
+
+              <td className="p-4">
+                {project.openBugCount}
+              </td>
+
+              <td className="p-4">
+                {project.criticalBugCount}
+              </td>
+
               <td className="p-4">
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -188,34 +231,6 @@ function ProjectManagerDashboard() {
                     Bugs
                   </button>
                 </div>
-              </td>
-
-              <td className="p-4 text-slate-400">
-                {project.projectCode}
-              </td>
-
-              <td className="p-4">{project.status}</td>
-
-              <td className="p-4">
-                {project.activeMemberCount}
-              </td>
-
-              <td className="p-4">
-                {project.openBugCount}
-              </td>
-
-              <td className="p-4">
-                <button
-                  onClick={() =>
-                    navigate(
-                      `/manager/projects/${project.projectId}/members`
-                    )
-                  }
-                  className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium hover:bg-blue-500"
-                >
-                  <Settings size={16} />
-                  Manage Members
-                </button>
               </td>
             </tr>
           ))}
