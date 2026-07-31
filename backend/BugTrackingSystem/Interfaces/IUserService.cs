@@ -25,6 +25,11 @@ namespace BugTrackingSystem.Interfaces
             int currentAdminUserId
         );
 
+        Task<bool> ResetPasswordAsync(
+            int userId,
+            ResetPasswordRequestDto request
+        );
+
         Task ChangePasswordAsync(
             int userId,
             ChangePasswordRequestDto request

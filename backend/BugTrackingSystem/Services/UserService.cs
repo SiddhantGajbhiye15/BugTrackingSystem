@@ -150,6 +150,28 @@ namespace BugTrackingSystem.Services
             return true;
         }
 
+        public async Task<bool> ResetPasswordAsync(
+            int userId,
+            ResetPasswordRequestDto request)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.PasswordHash = PasswordHasher.HashPassword(
+                request.NewPassword
+            );
+
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.SaveChangesAsync();
+
+            return true;
+        }
+
         public async Task ChangePasswordAsync(
             int userId,
             ChangePasswordRequestDto request)

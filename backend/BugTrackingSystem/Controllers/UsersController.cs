@@ -160,6 +160,33 @@ namespace BugTrackingSystem.Controllers
             }
         }
 
+        // Only Admin can reset a user's password
+        [HttpPatch("{id:int}/reset-password")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ResetPassword(
+            int id,
+            ResetPasswordRequestDto request)
+        {
+            var reset =
+                await _userService.ResetPasswordAsync(
+                    id,
+                    request
+                );
+
+            if (!reset)
+            {
+                return NotFound(new
+                {
+                    Message = "User not found."
+                });
+            }
+
+            return Ok(new
+            {
+                Message = "Password reset successfully."
+            });
+        }
+
         // Any logged-in user can view their own profile
         [HttpGet("me")]
         public async Task<IActionResult> GetMyProfile()
