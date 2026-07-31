@@ -4,6 +4,7 @@ import {
   Bug,
   FolderKanban,
   LogOut,
+  Settings,
   Users,
 } from "lucide-react";
 import { useNavigate } from "react-router";
@@ -146,13 +147,14 @@ function ProjectManagerDashboard() {
         <DataTable
           title="Projects Overview"
           emptyMessage="No projects are currently assigned to you."
-          headers={[
+         headers={[
             "Project",
             "Code",
             "Status",
             "Members",
             "Open Bugs",
             "Critical Bugs",
+            "Action",
           ]}
         >
           {dashboard.projectsOverview.map((project) => (
@@ -179,7 +181,17 @@ function ProjectManagerDashboard() {
               </td>
 
               <td className="p-4">
-                {project.criticalBugCount}
+                <button
+                  onClick={() =>
+                    navigate(
+                      `/manager/projects/${project.projectId}/members`
+                    )
+                  }
+                  className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium hover:bg-blue-500"
+                >
+                  <Settings size={16} />
+                  Manage Members
+                </button>
               </td>
             </tr>
           ))}

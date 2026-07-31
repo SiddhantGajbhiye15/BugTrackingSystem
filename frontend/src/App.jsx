@@ -6,6 +6,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AllUsers from "./pages/admin/AllUsers";
 import AllProjects from "./pages/admin/AllProjects";
 import ProjectManagerDashboard from "./pages/manager/ProjectManagerDashboard";
+import ManageProjectMembers from "./pages/manager/ManageProjectMembers";
 function App() {
   return (
     <Routes>
@@ -28,7 +29,14 @@ function App() {
           </ProtectedRoute>
         }
       />
-
+      <Route
+        path="/manager/projects/:projectId/members"
+        element={
+          <ProtectedRoute allowedRoles={[2]}>
+            <ManageProjectMembers />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/developer/dashboard"
         element={
