@@ -54,7 +54,21 @@ namespace BugTrackingSystem.Controllers
             var projects =
                 await _projectService.GetAllAsync();
 
-            return Ok(projects);
+            // Admin can view every project.
+            if (User.IsInRole("Admin"))
+            {
+                return Ok(projects);
+            }
+
+            // A Project Manager can view only projects currently managed by them.
+            var currentUserId = GetCurrentUserId();
+
+            var managedProjects = projects
+                .Where(project =>
+                    project.ProjectManagerId == currentUserId)
+                .ToList();
+
+            return Ok(managedProjects);
         }
 
         [HttpGet("{id:int}")]
@@ -70,6 +84,20 @@ namespace BugTrackingSystem.Controllers
                 {
                     Message = "Project not found."
                 });
+            }
+
+            if (
+                User.IsInRole("ProjectManager") &&
+                project.ProjectManagerId != GetCurrentUserId()
+            )
+            {
+                return StatusCode(
+                    StatusCodes.Status403Forbidden,
+                    new
+                    {
+                        Message =
+                            "You are not authorized to view this project."
+                    });
             }
 
             return Ok(project);
