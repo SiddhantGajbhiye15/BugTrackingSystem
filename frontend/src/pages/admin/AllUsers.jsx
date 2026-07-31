@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Edit,
+  KeyRound,
   Plus,
   Power,
   Search,
@@ -34,6 +35,11 @@ const emptyEditForm = {
   role: "3",
 };
 
+const emptyResetForm = {
+  newPassword: "",
+  confirmPassword: "",
+};
+
 function AllUsers() {
   const navigate = useNavigate();
 
@@ -44,6 +50,7 @@ function AllUsers() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [addForm, setAddForm] = useState(emptyAddForm);
@@ -52,6 +59,11 @@ function AllUsers() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editForm, setEditForm] = useState(emptyEditForm);
   const [editError, setEditError] = useState("");
+
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetUser, setResetUser] = useState(null);
+  const [resetForm, setResetForm] = useState(emptyResetForm);
+  const [resetError, setResetError] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
   const [changingStatusId, setChangingStatusId] =
@@ -97,6 +109,15 @@ function AllUsers() {
     }));
   }
 
+  function handleResetInputChange(event) {
+    const { name, value } = event.target;
+
+    setResetForm((previousForm) => ({
+      ...previousForm,
+      [name]: value,
+    }));
+  }
+
   function closeAddModal() {
     setShowAddModal(false);
     setAddForm(emptyAddForm);
@@ -120,6 +141,20 @@ function AllUsers() {
     setShowEditModal(false);
     setEditForm(emptyEditForm);
     setEditError("");
+  }
+
+  function openResetModal(user) {
+    setResetUser(user);
+    setResetForm(emptyResetForm);
+    setResetError("");
+    setShowResetModal(true);
+  }
+
+  function closeResetModal() {
+    setShowResetModal(false);
+    setResetUser(null);
+    setResetForm(emptyResetForm);
+    setResetError("");
   }
 
   async function handleAddUser(event) {
@@ -185,6 +220,57 @@ function AllUsers() {
         requestError.response?.data?.detail ||
           requestError.response?.data?.message ||
           "Failed to update user."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleResetPassword(event) {
+    event.preventDefault();
+
+    if (resetForm.newPassword.length < 8) {
+      setResetError(
+        "Password must be at least 8 characters long."
+      );
+      return;
+    }
+
+    if (
+      resetForm.newPassword !==
+      resetForm.confirmPassword
+    ) {
+      setResetError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setResetError("");
+      setError("");
+      setSuccess("");
+
+      await api.patch(
+        `/api/Users/${resetUser.userId}/reset-password`,
+        {
+          newPassword: resetForm.newPassword,
+        }
+      );
+
+      const userName =
+        `${resetUser.firstName} ${resetUser.lastName}`;
+
+      closeResetModal();
+
+      setSuccess(
+        `Password reset successfully for ${userName}.`
+      );
+    } catch (requestError) {
+      setResetError(
+        requestError.response?.data?.detail ||
+          requestError.response?.data?.message ||
+          getValidationError(requestError) ||
+          "Failed to reset password."
       );
     } finally {
       setSubmitting(false);
@@ -358,6 +444,12 @@ function AllUsers() {
           </p>
         )}
 
+        {success && (
+          <p className="mb-5 rounded-lg bg-green-500/10 p-4 text-green-400">
+            {success}
+          </p>
+        )}
+
         <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -413,6 +505,16 @@ function AllUsers() {
                         >
                           <Edit size={16} />
                           Edit
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            openResetModal(user)
+                          }
+                          className="flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-400 hover:bg-amber-500/20"
+                        >
+                          <KeyRound size={16} />
+                          Reset Password
                         </button>
 
                         <button
@@ -597,6 +699,73 @@ function AllUsers() {
           </div>
         </div>
       )}
+
+      {showResetModal && resetUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900 p-6">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">
+                  Reset Password
+                </h2>
+
+                <p className="mt-2 text-sm text-slate-400">
+                  Set a new password for{" "}
+                  {resetUser.firstName}{" "}
+                  {resetUser.lastName}.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeResetModal}
+                disabled={submitting}
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white disabled:opacity-50"
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <form
+              onSubmit={handleResetPassword}
+              className="space-y-4"
+            >
+              <InputField
+                label="New Password"
+                name="newPassword"
+                type="password"
+                value={resetForm.newPassword}
+                onChange={handleResetInputChange}
+                minLength={8}
+              />
+
+              <InputField
+                label="Confirm Password"
+                name="confirmPassword"
+                type="password"
+                value={resetForm.confirmPassword}
+                onChange={handleResetInputChange}
+                minLength={8}
+              />
+
+              <p className="text-sm text-slate-500">
+                Password must contain at least 8 characters.
+              </p>
+
+              {resetError && (
+                <ErrorMessage message={resetError} />
+              )}
+
+              <ModalButtons
+                onCancel={closeResetModal}
+                submitting={submitting}
+                submitText="Reset Password"
+                loadingText="Resetting..."
+              />
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -648,6 +817,18 @@ function RoleField({ value, onChange }) {
       </select>
     </div>
   );
+}
+
+function getValidationError(error) {
+  const validationErrors = error.response?.data?.errors;
+
+  if (!validationErrors) {
+    return "";
+  }
+
+  return Object.values(validationErrors)
+    .flat()
+    .join(" ");
 }
 
 function ErrorMessage({ message }) {
