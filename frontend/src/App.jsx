@@ -10,6 +10,7 @@ import ManageProjectMembers from "./pages/manager/ManageProjectMembers";
 import ManagerBugs from "./pages/manager/ManagerBugs";
 import TesterDashboard from "./pages/tester/TesterDashboard";
 import CreateBug from "./pages/tester/CreateBug";
+import EditBug from "./pages/tester/EditBug";
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
 import BugDetails from "./pages/bugs/BugDetails";
 
@@ -104,6 +105,15 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={[4]}>
             <CreateBug />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tester/bugs/:bugId/edit"
+        element={
+          <ProtectedRoute allowedRoles={[4]}>
+            <EditBug />
           </ProtectedRoute>
         }
       />

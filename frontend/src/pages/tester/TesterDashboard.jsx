@@ -7,8 +7,10 @@ import {
   Eye,
   FolderKanban,
   LogOut,
+  Pencil,
   Plus,
   RefreshCcw,
+  Trash2,
   XCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router";
@@ -22,6 +24,7 @@ function TesterDashboard() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [updatingBugId, setUpdatingBugId] = useState(null);
+  const [deletingBugId, setDeletingBugId] = useState(null);
 
   useEffect(() => {
     loadDashboard();
@@ -47,33 +50,71 @@ function TesterDashboard() {
       setLoading(false);
     }
   }
+
   async function verifyBug(bugId, status) {
-  try {
-    setUpdatingBugId(bugId);
-    setError("");
-    setSuccess("");
+    try {
+      setUpdatingBugId(bugId);
+      setError("");
+      setSuccess("");
 
-    await api.patch(`/api/bugs/${bugId}/status`, {
-      status,
-    });
+      await api.patch(`/api/bugs/${bugId}/status`, {
+        status,
+      });
 
-    setSuccess(
-      status === 5
-        ? "Bug closed successfully."
-        : "Bug reopened and sent back for fixing."
-    );
+      setSuccess(
+        status === 5
+          ? "Bug closed successfully."
+          : "Bug reopened and sent back for fixing."
+      );
 
-    await loadDashboard();
-  } catch (requestError) {
-    setError(
-      requestError.response?.data?.detail ||
-        requestError.response?.data?.message ||
-        "Failed to update bug status."
-    );
-  } finally {
-    setUpdatingBugId(null);
+      await loadDashboard();
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.detail ||
+          requestError.response?.data?.message ||
+          "Failed to update bug status."
+      );
+    } finally {
+      setUpdatingBugId(null);
+    }
   }
-}
+
+  async function deleteBug(bug) {
+    const confirmed = window.confirm(
+      `Delete "${bug.title}"? This action cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingBugId(bug.bugId);
+      setError("");
+      setSuccess("");
+
+      await api.delete(`/api/bugs/${bug.bugId}`);
+
+      setSuccess("Bug deleted successfully.");
+
+      await loadDashboard();
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.detail ||
+          requestError.response?.data?.message ||
+          "Failed to delete bug."
+      );
+    } finally {
+      setDeletingBugId(null);
+    }
+  }
+
+  function canModifyBug(bug) {
+    return (
+      bug.status === "Open" &&
+      bug.assignedDeveloperId == null
+    );
+  }
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -141,7 +182,7 @@ function TesterDashboard() {
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={() =>
                 navigate(
@@ -154,6 +195,7 @@ function TesterDashboard() {
               <Plus size={17} />
               Create Bug
             </button>
+
             <button
               onClick={loadDashboard}
               className="flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 text-slate-300 hover:bg-slate-800"
@@ -178,6 +220,7 @@ function TesterDashboard() {
             {error}
           </div>
         )}
+
         {success && (
           <div className="mb-6 rounded-lg bg-green-500/10 p-4 text-green-400">
             {success}
@@ -385,8 +428,12 @@ function TesterDashboard() {
                           </button>
 
                           <button
-                            onClick={() => verifyBug(bug.bugId, 5)}
-                            disabled={updatingBugId === bug.bugId}
+                            onClick={() =>
+                              verifyBug(bug.bugId, 5)
+                            }
+                            disabled={
+                              updatingBugId === bug.bugId
+                            }
                             className="flex items-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <CheckCircle2 size={16} />
@@ -396,8 +443,12 @@ function TesterDashboard() {
                           </button>
 
                           <button
-                            onClick={() => verifyBug(bug.bugId, 6)}
-                            disabled={updatingBugId === bug.bugId}
+                            onClick={() =>
+                              verifyBug(bug.bugId, 6)
+                            }
+                            disabled={
+                              updatingBugId === bug.bugId
+                            }
                             className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <XCircle size={16} />
@@ -494,15 +545,46 @@ function TesterDashboard() {
                       </td>
 
                       <td className="p-4">
-                        <button
-                          onClick={() =>
-                            navigate(`/bugs/${bug.bugId}`)
-                          }
-                          className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium hover:bg-blue-500"
-                        >
-                          <Eye size={16} />
-                          View
-                        </button>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() =>
+                              navigate(`/bugs/${bug.bugId}`)
+                            }
+                            className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium hover:bg-blue-500"
+                          >
+                            <Eye size={16} />
+                            View
+                          </button>
+
+                          {canModifyBug(bug) && (
+                            <>
+                              <button
+                                onClick={() =>
+                                  navigate(
+                                    `/tester/bugs/${bug.bugId}/edit`
+                                  )
+                                }
+                                className="flex items-center gap-2 rounded-lg bg-amber-600 px-3 py-2 text-sm font-medium hover:bg-amber-500"
+                              >
+                                <Pencil size={16} />
+                                Edit
+                              </button>
+
+                              <button
+                                onClick={() => deleteBug(bug)}
+                                disabled={
+                                  deletingBugId === bug.bugId
+                                }
+                                className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <Trash2 size={16} />
+                                {deletingBugId === bug.bugId
+                                  ? "Deleting..."
+                                  : "Delete"}
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   )
@@ -546,6 +628,7 @@ function StatusCard({ label, value }) {
   return (
     <div className="rounded-xl bg-slate-950 p-4">
       <p className="text-sm text-slate-400">{label}</p>
+
       <p className="mt-2 text-2xl font-bold">{value}</p>
     </div>
   );
