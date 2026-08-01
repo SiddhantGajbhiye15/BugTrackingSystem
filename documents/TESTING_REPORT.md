@@ -287,9 +287,15 @@ Password reset and login validation worked correctly. DEV1 will use `Rahul@2026`
 **Expected Result**
 - Login is rejected while DEV2 is inactive.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+During the initial test, DEV2 appeared inactive in the frontend, but the database value remained `IsActive = 1`, so the user could still log in.
+
+The frontend status-change logic was corrected to reload users from the backend after the activate/deactivate request. After the fix, deactivating DEV2 changed the database value to `IsActive = 0`. Login using `siddhant.qa.dev@example.com` and `Dev@12345` was rejected.
+
+**Status:** Retest Passed  
+
+**Notes:**  
+Initial test failed because the frontend changed only its local displayed state. The backend endpoint worked correctly. The frontend now reloads the saved user status from the backend.
 
 ---
 
@@ -327,7 +333,7 @@ Password reset and login validation worked correctly. DEV1 will use `Rahul@2026`
 
 # Result Summary
 
-| Passed | 10 |
+| Passed | 11 |
 | Failed | 0 |
 | Blocked | 0 |
-| Pending | 2 |
+| Pending | 1 |

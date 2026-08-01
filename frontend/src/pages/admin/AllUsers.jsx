@@ -278,46 +278,48 @@ function AllUsers() {
   }
 
   async function handleStatusChange(user) {
-    const action = user.isActive
-      ? "deactivate"
-      : "activate";
+  const action = user.isActive
+    ? "deactivate"
+    : "activate";
 
-    const confirmed = window.confirm(
-      `Are you sure you want to ${action} ${user.firstName} ${user.lastName}?`
+  const actionPastTense =
+    action === "activate"
+      ? "activated"
+      : "deactivated";
+
+  const confirmed = window.confirm(
+    `Are you sure you want to ${action} ${user.firstName} ${user.lastName}?`
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    setChangingStatusId(user.userId);
+    setError("");
+    setSuccess("");
+
+    await api.patch(
+      `/api/Users/${user.userId}/${action}`
     );
 
-    if (!confirmed) {
-      return;
-    }
+    // Reload the real value saved in the database.
+    await loadUsers();
 
-    try {
-      setChangingStatusId(user.userId);
-      setError("");
-
-      await api.patch(
-        `/api/Users/${user.userId}/${action}`
-      );
-
-      setUsers((previousUsers) =>
-        previousUsers.map((existingUser) =>
-          existingUser.userId === user.userId
-            ? {
-                ...existingUser,
-                isActive: !existingUser.isActive,
-              }
-            : existingUser
-        )
-      );
-    } catch (requestError) {
-      setError(
-        requestError.response?.data?.detail ||
-          requestError.response?.data?.message ||
-          `Failed to ${action} user.`
-      );
-    } finally {
-      setChangingStatusId(null);
-    }
+    setSuccess(
+      `${user.firstName} ${user.lastName} was ${actionPastTense} successfully.`
+    );
+  } catch (requestError) {
+    setError(
+      requestError.response?.data?.detail ||
+        requestError.response?.data?.message ||
+        `Failed to ${action} user.`
+    );
+  } finally {
+    setChangingStatusId(null);
   }
+}
 
   const filteredUsers = useMemo(() => {
     const normalizedSearch = search
