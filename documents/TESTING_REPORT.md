@@ -306,9 +306,13 @@ Initial test failed because the frontend changed only its local displayed state.
 - DEV2 can log in.
 - Developer dashboard opens.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+DEV2 was reactivated successfully through the Admin interface. After refreshing the page, the user remained Active and the database value was `IsActive = 1`. Login using `siddhant.qa.dev@example.com` and `Dev@12345` succeeded, and the Developer Dashboard opened correctly.
+
+**Status:** Passed  
+
+**Notes:**  
+User reactivation and login worked correctly.
 
 # Remaining Test Phases
 
@@ -329,11 +333,12 @@ Initial test failed because the frontend changed only its local displayed state.
 
 | Defect ID | Test Case ID | Severity | Description | Fix Status | Retest Status |
 |---|---|---|---|---|---|
-| — | — | — | No defects recorded yet | — | — |
+| DEF-001 | ADMIN-011 | High | Deactivating a user from the Admin UI changed the displayed status but did not reliably reflect the saved database state. The inactive user could still log in. | Fixed in `AllUsers.jsx` by reloading users after the status API request | Retest Passed |
+
 
 # Result Summary
 
-| Passed | 11 |
+| Passed | 12 |
 | Failed | 0 |
 | Blocked | 0 |
-| Pending | 1 |
+| Pending | 0 |
