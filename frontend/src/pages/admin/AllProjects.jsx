@@ -23,44 +23,53 @@ function AllProjects() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  const [selectedProject, setSelectedProject] =
-    useState(null);
-  const [selectedManagerId, setSelectedManagerId] =
-    useState("");
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedManagerId, setSelectedManagerId] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [modalError, setModalError] = useState("");
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!success) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setSuccess("");
+    }, 4000);
+
+    return () => clearTimeout(timeoutId);
+  }, [success]);
 
   async function loadData() {
     try {
       setLoading(true);
       setError("");
 
-      const [projectsResponse, usersResponse] =
-        await Promise.all([
-          api.get("/api/Projects"),
-          api.get("/api/Users"),
-        ]);
+      const [projectsResponse, usersResponse] = await Promise.all([
+        api.get("/api/Projects"),
+        api.get("/api/Users"),
+      ]);
 
       setProjects(projectsResponse.data);
 
       const activeManagers = usersResponse.data.filter(
-        (user) =>
-          user.role === 2 &&
-          user.isActive
+        (user) => user.role === 2 && user.isActive,
       );
 
       setManagers(activeManagers);
     } catch (requestError) {
       setError(
         requestError.response?.data?.detail ||
-          "Failed to load projects."
+          requestError.response?.data?.message ||
+          "Failed to load projects.",
       );
     } finally {
       setLoading(false);
@@ -69,12 +78,15 @@ function AllProjects() {
 
   function openManagerModal(project) {
     setSelectedProject(project);
+
     setSelectedManagerId(
       project.projectManagerId
         ? String(project.projectManagerId)
-        : ""
+        : "",
     );
+
     setModalError("");
+    setSuccess("");
   }
 
   function closeManagerModal() {
@@ -94,28 +106,42 @@ function AllProjects() {
     try {
       setSubmitting(true);
       setModalError("");
+      setSuccess("");
 
       const response = await api.patch(
         `/api/Projects/${selectedProject.projectId}/manager`,
         {
           projectManagerId: Number(selectedManagerId),
-        }
+        },
       );
 
       setProjects((previousProjects) =>
         previousProjects.map((project) =>
           project.projectId === selectedProject.projectId
             ? response.data
-            : project
-        )
+            : project,
+        ),
       );
 
+      const selectedManager = managers.find(
+        (manager) =>
+          manager.userId === Number(selectedManagerId),
+      );
+
+      const managerName = selectedManager
+        ? `${selectedManager.firstName} ${selectedManager.lastName}`
+        : "the selected manager";
+
       closeManagerModal();
+
+      setSuccess(
+        `Project manager changed to ${managerName} successfully.`,
+      );
     } catch (requestError) {
       setModalError(
         requestError.response?.data?.detail ||
           requestError.response?.data?.message ||
-          "Failed to change manager."
+          "Failed to change manager.",
       );
     } finally {
       setSubmitting(false);
@@ -123,9 +149,7 @@ function AllProjects() {
   }
 
   const filteredProjects = useMemo(() => {
-    const normalizedSearch = search
-      .trim()
-      .toLowerCase();
+    const normalizedSearch = search.trim().toLowerCase();
 
     return projects.filter((project) => {
       const matchesSearch =
@@ -183,9 +207,7 @@ function AllProjects() {
 
             <input
               value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
-              }
+              onChange={(event) => setSearch(event.target.value)}
               placeholder="Search project name or code"
               className="w-full rounded-lg border border-slate-700 bg-slate-950 py-3 pl-10 pr-4 outline-none focus:border-blue-500"
             />
@@ -204,6 +226,12 @@ function AllProjects() {
             <option value="3">Archived</option>
           </select>
         </section>
+
+        {success && (
+          <p className="mb-5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-400">
+            {success}
+          </p>
+        )}
 
         {error && (
           <p className="mb-5 rounded-lg bg-red-500/10 p-4 text-red-400">
@@ -268,6 +296,7 @@ function AllProjects() {
                         className="flex items-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-sm font-medium hover:bg-violet-500"
                       >
                         <UserRoundCog size={16} />
+
                         {project.projectManagerId
                           ? "Change Manager"
                           : "Assign Manager"}
@@ -337,24 +366,19 @@ function AllProjects() {
                 <select
                   value={selectedManagerId}
                   onChange={(event) =>
-                    setSelectedManagerId(
-                      event.target.value
-                    )
+                    setSelectedManagerId(event.target.value)
                   }
                   required
                   className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-violet-500"
                 >
-                  <option value="">
-                    Select manager
-                  </option>
+                  <option value="">Select manager</option>
 
                   {managers.map((manager) => (
                     <option
                       key={manager.userId}
                       value={manager.userId}
                     >
-                      {manager.firstName}{" "}
-                      {manager.lastName}
+                      {manager.firstName} {manager.lastName}
                     </option>
                   ))}
                 </select>
@@ -370,7 +394,8 @@ function AllProjects() {
                 <button
                   type="button"
                   onClick={closeManagerModal}
-                  className="rounded-lg border border-slate-700 px-5 py-3 hover:bg-slate-800"
+                  disabled={submitting}
+                  className="rounded-lg border border-slate-700 px-5 py-3 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Cancel
                 </button>
@@ -378,7 +403,7 @@ function AllProjects() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-lg bg-violet-600 px-5 py-3 font-semibold hover:bg-violet-500 disabled:opacity-60"
+                  className="rounded-lg bg-violet-600 px-5 py-3 font-semibold hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {submitting
                     ? "Saving..."
