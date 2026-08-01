@@ -224,9 +224,13 @@ No issue found.
 - Duplicate-email message appears.
 - Only one PM1 account remains.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+The duplicate user creation was rejected. The system displayed a duplicate-email error, no additional user was created, the total user count remained 7, and only one account with email `amit.qa.pm@example.com` existed.
+
+**Status:** Passed  
+
+**Notes:**  
+Duplicate-email validation worked correctly.
 
 ---
 
@@ -315,7 +319,7 @@ No issue found.
 
 # Result Summary
 
-| Passed | 7 |
+| Passed | 8 |
 | Failed | 0 |
 | Blocked | 0 |
-| Pending | 5 |
+| Pending | 4 |
