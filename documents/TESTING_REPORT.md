@@ -104,9 +104,13 @@ No issue found.
 - User is created once.
 - Role and active status are correct.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+PM2 was created successfully. Neha Sharma appeared exactly once in the users table with email `neha.qa.pm@example.com`, role `Project Manager`, and status `Active`. The total user count increased from 2 to 3.
+
+**Status:** Passed  
+
+**Notes:**  
+No issue found.
 
 ---
 
@@ -295,7 +299,7 @@ No issue found.
 
 # Result Summary
 
-| Passed | 2 |
+| Passed | 3 |
 | Failed | 0 |
 | Blocked | 0 |
-| Pending | 10 |
+| Pending | 9 |
