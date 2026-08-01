@@ -43,3 +43,7 @@ frontend/.env.local
 .idea/
 .DS_Store
 Thumbs.db
+
+# Deployment profiles and credentials
+backend/**/Properties/PublishProfiles/
+*.PublishSettings
