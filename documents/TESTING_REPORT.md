@@ -247,9 +247,13 @@ Duplicate-email validation worked correctly.
 **Cleanup**
 - Change the first name back to `Rahul`.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+DEV1 was edited successfully. The first name changed from `Rahul` to `Rahul Updated` while the email, role, active status, and total user count remained unchanged. No duplicate user was created. The first name was then changed back to `Rahul` for later test cases.
+
+**Status:** Passed  
+
+**Notes:**  
+Edit-user functionality worked correctly.
 
 ---
 
@@ -264,9 +268,13 @@ Duplicate-email validation worked correctly.
 - Old password `Dev@12345` fails.
 - New password `Rahul@2026` works.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+DEV1's password was reset successfully. Login with the old password `Dev@12345` was rejected, while login with the new password `Rahul@2026` succeeded and opened the Developer Dashboard.
+
+**Status:** Passed  
+
+**Notes:**  
+Password reset and login validation worked correctly. DEV1 will use `Rahul@2026` for the remaining tests.
 
 ---
 
@@ -319,7 +327,7 @@ Duplicate-email validation worked correctly.
 
 # Result Summary
 
-| Passed | 8 |
+| Passed | 10 |
 | Failed | 0 |
 | Blocked | 0 |
-| Pending | 4 |
+| Pending | 2 |
