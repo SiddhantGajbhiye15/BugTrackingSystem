@@ -31,7 +31,7 @@ namespace BugTrackingSystem.Services
 
             if (user == null)
             {
-                throw new InvalidCredentialsException(
+                throw new UnauthorizedAccessException(
                     "Invalid email or password.");
             }
 
@@ -42,13 +42,13 @@ namespace BugTrackingSystem.Services
 
             if (!isPasswordValid)
             {
-                throw new InvalidCredentialsException(
+                throw new UnauthorizedAccessException(
                     "Invalid email or password.");
             }
 
             if (!user.IsActive)
             {
-                throw new InvalidCredentialsException(
+                throw new UnauthorizedAccessException(
                     "Your account is inactive. Contact the administrator.");
             }
 
