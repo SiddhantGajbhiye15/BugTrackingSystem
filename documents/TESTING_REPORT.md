@@ -176,9 +176,13 @@ No issue found.
 - Role is Tester.
 - Status is Active.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+TEST1 was created successfully. Pranay Patil appeared exactly once in the users table with email `pranay.qa.tester@example.com`, role `Tester`, and status `Active`. The total user count increased from 5 to 6.
+
+**Status:** Passed  
+
+**Notes:**  
+No issue found.
 
 ---
 
@@ -196,9 +200,13 @@ No issue found.
 - Role is Tester.
 - Status is Active.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+TEST2 was created successfully. Anjali Deshmukh appeared exactly once in the users table with email `anjali.qa.tester@example.com`, role `Tester`, and status `Active`. The total user count increased from 6 to 7.
+
+**Status:** Passed  
+
+**Notes:**  
+No issue found.
 
 ---
 
@@ -307,7 +315,7 @@ No issue found.
 
 # Result Summary
 
-| Passed | 5 |
+| Passed | 7 |
 | Failed | 0 |
 | Blocked | 0 |
-| Pending | 7 |
+| Pending | 5 |
