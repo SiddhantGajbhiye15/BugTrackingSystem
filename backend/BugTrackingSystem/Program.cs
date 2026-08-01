@@ -30,14 +30,25 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // -------------------- CORS --------------------
 
+var frontendUrl = builder.Configuration["FrontendUrl"];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
     {
+        var allowedOrigins = new List<string>
+        {
+            "http://localhost:5173",
+            "https://localhost:5173"
+        };
+
+        if (!string.IsNullOrWhiteSpace(frontendUrl))
+        {
+            allowedOrigins.Add(frontendUrl.TrimEnd('/'));
+        }
+
         policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "https://localhost:5173")
+            .WithOrigins(allowedOrigins.ToArray())
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
