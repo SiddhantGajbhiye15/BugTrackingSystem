@@ -128,9 +128,13 @@ No issue found.
 - Role is Developer.
 - Status is Active.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+DEV1 was created successfully. Rahul Verma appeared exactly once in the users table with email `rahul.qa.dev@example.com`, role `Developer`, and status `Active`. The total user count increased from 3 to 4.
+
+**Status:** Passed  
+
+**Notes:**  
+No issue found.
 
 ---
 
@@ -148,9 +152,13 @@ No issue found.
 - Role is Developer.
 - Status is Active.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+DEV2 was created successfully. Siddhant Gajbhiye appeared exactly once in the users table with email `siddhant.qa.dev@example.com`, role `Developer`, and status `Active`. The total user count increased from 4 to 5.
+
+**Status:** Passed  
+
+**Notes:**  
+No issue found.
 
 ---
 
@@ -299,7 +307,7 @@ No issue found.
 
 # Result Summary
 
-| Passed | 3 |
+| Passed | 5 |
 | Failed | 0 |
 | Blocked | 0 |
-| Pending | 9 |
+| Pending | 7 |
