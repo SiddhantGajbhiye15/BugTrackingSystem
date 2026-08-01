@@ -81,9 +81,13 @@ No issue found. The Admin name and role are visible in the Recent Users table.
 - Role is Project Manager.
 - Status is Active.
 
-**Actual Result:** Not recorded  
-**Status:** Pending  
-**Notes:** —
+**Actual Result:**  
+PM1 was created successfully. Amit Patil appeared once in the users table with email `amit.qa.pm@example.com`, role `Project Manager`, and status `Active`. The total user count increased from 1 to 2.
+
+**Status:** Passed  
+
+**Notes:**  
+No issue found.
 
 ---
 
@@ -291,7 +295,7 @@ No issue found. The Admin name and role are visible in the Recent Users table.
 
 # Result Summary
 
-| Passed | 1 |
+| Passed | 2 |
 | Failed | 0 |
 | Blocked | 0 |
-| Pending | 11 |
+| Pending | 10 |
