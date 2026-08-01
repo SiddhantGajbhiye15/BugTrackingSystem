@@ -218,4 +218,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+await DatabaseSeeder.SeedAdminAsync(app);
+
+
 app.Run();
