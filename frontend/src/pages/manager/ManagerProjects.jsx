@@ -32,6 +32,7 @@ function ManagerProjects() {
   const [submitting, setSubmitting] = useState(false);
   const [deletingProjectId, setDeletingProjectId] = useState(null);
   const [error, setError] = useState("");
+  const [createError, setCreateError] = useState("");
   const [success, setSuccess] = useState("");
 
   const storedUser = localStorage.getItem("user");
@@ -69,6 +70,20 @@ function ManagerProjects() {
       ...previousForm,
       [name]: value,
     }));
+
+    if (createError) {
+      setCreateError("");
+    }
+  }
+
+  function closeCreateModal() {
+    if (submitting) {
+      return;
+    }
+
+    setShowCreateModal(false);
+    setCreateForm(emptyCreateForm);
+    setCreateError("");
   }
 
   function handleEditInputChange(event) {
@@ -85,6 +100,7 @@ function ManagerProjects() {
 
     try {
       setSubmitting(true);
+      setCreateError("");
       setError("");
       setSuccess("");
 
@@ -100,10 +116,13 @@ function ManagerProjects() {
       ]);
 
       setCreateForm(emptyCreateForm);
+      setCreateError("");
       setShowCreateModal(false);
       setSuccess("Project created successfully.");
     } catch (requestError) {
-      setError(getErrorMessage(requestError, "Failed to create project."));
+      setCreateError(
+        getErrorMessage(requestError, "Failed to create project.")
+      );
     } finally {
       setSubmitting(false);
     }
@@ -224,7 +243,9 @@ function ManagerProjects() {
           <button
             onClick={() => {
               setError("");
+              setCreateError("");
               setSuccess("");
+              setCreateForm(emptyCreateForm);
               setShowCreateModal(true);
             }}
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 font-semibold hover:bg-blue-500"
@@ -387,9 +408,14 @@ function ManagerProjects() {
       {showCreateModal && (
         <Modal
           title="Create Project"
-          onClose={() => setShowCreateModal(false)}
+          onClose={closeCreateModal}
         >
           <form onSubmit={handleCreateProject} className="space-y-5">
+            {createError && (
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">
+                {createError}
+              </div>
+            )}
             <FormField label="Project Code">
               <input
                 name="projectCode"
@@ -427,7 +453,7 @@ function ManagerProjects() {
             <ModalActions
               submitting={submitting}
               submitLabel="Create Project"
-              onCancel={() => setShowCreateModal(false)}
+              onCancel={closeCreateModal}
             />
           </form>
         </Modal>
