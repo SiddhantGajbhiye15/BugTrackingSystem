@@ -58,7 +58,7 @@ namespace BugTrackingSystem.Repositories.Implementation
 
             return hasAnyBugs;
         }
-        public async Task<User?> GetUserByIdAsync(int userId)feat: add project lifecycle workflow and preserve membership history
+        public async Task<User?> GetUserByIdAsync(int userId)
         {
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.UserId == userId);
