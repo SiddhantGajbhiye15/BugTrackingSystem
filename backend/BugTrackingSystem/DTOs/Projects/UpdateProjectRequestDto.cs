@@ -12,7 +12,6 @@ namespace BugTrackingSystem.DTOs.Projects
         [MaxLength(1000)]
         public string Description { get; set; } = string.Empty;
 
-        [Required]
-        public ProjectStatus Status { get; set; }
+       
     }
 }

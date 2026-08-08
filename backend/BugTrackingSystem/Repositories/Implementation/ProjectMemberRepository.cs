@@ -28,6 +28,15 @@ namespace BugTrackingSystem.Repositories.Implementations
                 .ThenBy(pm => pm.User.LastName)
                 .ToListAsync();
         }
+        public async Task<List<ProjectMember>> GetActiveMembersForUpdateAsync(
+    int projectId)
+        {
+            return await _context.ProjectMembers
+                .Where(pm =>
+                    pm.ProjectId == projectId &&
+                    pm.RemovedDate == null)
+                .ToListAsync();
+        }
 
         public async Task<ProjectMember?>
             GetActiveMembershipByUserIdAsync(int userId)

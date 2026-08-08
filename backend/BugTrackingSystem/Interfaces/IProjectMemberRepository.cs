@@ -19,6 +19,9 @@ namespace BugTrackingSystem.Repositories.Interfaces
 
         Task<List<User>> GetAvailableUsersAsync();
 
+        Task<List<ProjectMember>> GetActiveMembersForUpdateAsync(
+            int projectId);
+
         Task AddAsync(ProjectMember projectMember);
 
         Task SaveChangesAsync();

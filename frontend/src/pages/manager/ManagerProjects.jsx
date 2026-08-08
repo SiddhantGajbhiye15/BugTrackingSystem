@@ -30,7 +30,11 @@ function ManagerProjects() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
   const [deletingProjectId, setDeletingProjectId] = useState(null);
+  const [changingStatusProjectId, setChangingStatusProjectId] =
+    useState(null);
+
   const [error, setError] = useState("");
   const [createError, setCreateError] = useState("");
   const [success, setSuccess] = useState("");
@@ -57,7 +61,12 @@ function ManagerProjects() {
 
       setProjects(managedProjects);
     } catch (requestError) {
-      setError(getErrorMessage(requestError, "Failed to load projects."));
+      setError(
+        getErrorMessage(
+          requestError,
+          "Failed to load projects."
+        )
+      );
     } finally {
       setLoading(false);
     }
@@ -118,10 +127,14 @@ function ManagerProjects() {
       setCreateForm(emptyCreateForm);
       setCreateError("");
       setShowCreateModal(false);
+
       setSuccess("Project created successfully.");
     } catch (requestError) {
       setCreateError(
-        getErrorMessage(requestError, "Failed to create project.")
+        getErrorMessage(
+          requestError,
+          "Failed to create project."
+        )
       );
     } finally {
       setSubmitting(false);
@@ -141,7 +154,6 @@ function ManagerProjects() {
         {
           projectName: editingProject.projectName.trim(),
           description: editingProject.description.trim(),
-          status: Number(editingProject.status),
         }
       );
 
@@ -154,11 +166,54 @@ function ManagerProjects() {
       );
 
       setEditingProject(null);
+
       setSuccess("Project updated successfully.");
     } catch (requestError) {
-      setError(getErrorMessage(requestError, "Failed to update project."));
+      setError(
+        getErrorMessage(
+          requestError,
+          "Failed to update project."
+        )
+      );
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleStatusChange(project, action) {
+    try {
+      setChangingStatusProjectId(project.projectId);
+      setError("");
+      setSuccess("");
+
+      const response = await api.patch(
+        `/api/Projects/${project.projectId}/${action}`
+      );
+
+      setProjects((previousProjects) =>
+        previousProjects.map((existingProject) =>
+          existingProject.projectId === project.projectId
+            ? response.data
+            : existingProject
+        )
+      );
+
+      if (action === "complete") {
+        setSuccess("Project completed successfully.");
+      } else if (action === "archive") {
+        setSuccess("Project archived successfully.");
+      } else if (action === "restore") {
+        setSuccess("Project restored successfully.");
+      }
+    } catch (requestError) {
+      setError(
+        getErrorMessage(
+          requestError,
+          "Failed to change project status."
+        )
+      );
+    } finally {
+      setChangingStatusProjectId(null);
     }
   }
 
@@ -176,7 +231,9 @@ function ManagerProjects() {
       setError("");
       setSuccess("");
 
-      await api.delete(`/api/Projects/${project.projectId}`);
+      await api.delete(
+        `/api/Projects/${project.projectId}`
+      );
 
       setProjects((previousProjects) =>
         previousProjects.filter(
@@ -187,7 +244,12 @@ function ManagerProjects() {
 
       setSuccess("Project deleted successfully.");
     } catch (requestError) {
-      setError(getErrorMessage(requestError, "Failed to delete project."));
+      setError(
+        getErrorMessage(
+          requestError,
+          "Failed to delete project."
+        )
+      );
     } finally {
       setDeletingProjectId(null);
     }
@@ -202,9 +264,15 @@ function ManagerProjects() {
 
     return projects.filter((project) => {
       return (
-        project.projectName.toLowerCase().includes(value) ||
-        project.projectCode.toLowerCase().includes(value) ||
-        project.description?.toLowerCase().includes(value)
+        project.projectName
+          .toLowerCase()
+          .includes(value) ||
+        project.projectCode
+          .toLowerCase()
+          .includes(value) ||
+        project.description
+          ?.toLowerCase()
+          .includes(value)
       );
     });
   }, [projects, search]);
@@ -221,7 +289,9 @@ function ManagerProjects() {
     <main className="min-h-screen bg-slate-950 p-6 text-white">
       <div className="mx-auto max-w-7xl">
         <button
-          onClick={() => navigate("/manager/dashboard")}
+          onClick={() =>
+            navigate("/manager/dashboard")
+          }
           className="mb-6 flex items-center gap-2 text-slate-400 hover:text-white"
         >
           <ArrowLeft size={18} />
@@ -236,7 +306,8 @@ function ManagerProjects() {
             </h1>
 
             <p className="mt-2 text-slate-400">
-              Create and manage the projects assigned to you.
+              Create and manage the projects assigned to
+              you.
             </p>
           </div>
 
@@ -276,7 +347,9 @@ function ManagerProjects() {
 
             <input
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) =>
+                setSearch(event.target.value)
+              }
               placeholder="Search by project name, code, or description"
               className="w-full rounded-lg border border-slate-700 bg-slate-950 py-3 pl-10 pr-4 outline-none focus:border-blue-500"
             />
@@ -294,102 +367,215 @@ function ManagerProjects() {
             <table className="w-full min-w-275 text-left">
               <thead className="bg-slate-800/50 text-sm text-slate-400">
                 <tr>
-                  <th className="p-4">Project</th>
-                  <th className="p-4">Code</th>
-                  <th className="p-4">Description</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4">Created</th>
-                  <th className="p-4">Actions</th>
+                  <th className="p-4">
+                    Project
+                  </th>
+
+                  <th className="p-4">
+                    Code
+                  </th>
+
+                  <th className="p-4">
+                    Description
+                  </th>
+
+                  <th className="p-4">
+                    Status
+                  </th>
+
+                  <th className="p-4">
+                    Created
+                  </th>
+
+                  <th className="p-4">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
               <tbody>
-                {filteredProjects.map((project) => (
-                  <tr
-                    key={project.projectId}
-                    className="border-t border-slate-800 align-top"
-                  >
-                    <td className="p-4 font-medium">
-                      {project.projectName}
-                    </td>
+                {filteredProjects.map(
+                  (project) => (
+                    <tr
+                      key={project.projectId}
+                      className="border-t border-slate-800 align-top"
+                    >
+                      <td className="p-4 font-medium">
+                        {project.projectName}
+                      </td>
 
-                    <td className="p-4 text-slate-400">
-                      {project.projectCode}
-                    </td>
+                      <td className="p-4 text-slate-400">
+                        {project.projectCode}
+                      </td>
 
-                    <td className="max-w-sm p-4 text-slate-400">
-                      {project.description || "No description"}
-                    </td>
+                      <td className="max-w-sm p-4 text-slate-400">
+                        {project.description ||
+                          "No description"}
+                      </td>
 
-                    <td className="p-4">
-                      <span className={getStatusStyle(project.status)}>
-                        {getStatusLabel(project.status)}
-                      </span>
-                    </td>
-
-                    <td className="p-4 text-slate-400">
-                      {new Date(project.createdAt).toLocaleDateString()}
-                    </td>
-
-                    <td className="p-4">
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/manager/projects/${project.projectId}/members`
-                            )
-                          }
-                          className="flex items-center gap-2 rounded-lg bg-blue-500/10 px-3 py-2 text-sm text-blue-400 hover:bg-blue-500/20"
+                      <td className="p-4">
+                        <span
+                          className={getStatusStyle(
+                            project.status
+                          )}
                         >
-                          <Users size={16} />
-                          Members
-                        </button>
+                          {getStatusLabel(
+                            project.status
+                          )}
+                        </span>
+                      </td>
 
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/manager/projects/${project.projectId}/bugs`
-                            )
-                          }
-                          className="flex items-center gap-2 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400 hover:bg-red-500/20"
-                        >
-                          <Bug size={16} />
-                          Bugs
-                        </button>
+                      <td className="p-4 text-slate-400">
+                        {new Date(
+                          project.createdAt
+                        ).toLocaleDateString()}
+                      </td>
 
-                        <button
-                          onClick={() => {
-                            setError("");
-                            setSuccess("");
-                            setEditingProject({
-                              ...project,
-                              status: String(project.status),
-                            });
-                          }}
-                          className="flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-400 hover:bg-amber-500/20"
-                        >
-                          <Pencil size={16} />
-                          Edit
-                        </button>
+                      <td className="p-4">
+                        <div className="flex flex-wrap gap-2">
 
-                        <button
-                          onClick={() => handleDeleteProject(project)}
-                          disabled={
-                            deletingProjectId === project.projectId
-                          }
-                          className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium hover:bg-red-500 disabled:opacity-50"
-                        >
-                          <Trash2 size={16} />
-                          {deletingProjectId === project.projectId
-                            ? "Deleting..."
-                            : "Delete"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          {/* MEMBERS */}
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/manager/projects/${project.projectId}/members`
+                              )
+                            }
+                            className="flex items-center gap-2 rounded-lg bg-blue-500/10 px-3 py-2 text-sm text-blue-400 hover:bg-blue-500/20"
+                          >
+                            <Users size={16} />
+                            Members
+                          </button>
 
-                {filteredProjects.length === 0 && (
+                          {/* BUGS */}
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/manager/projects/${project.projectId}/bugs`
+                              )
+                            }
+                            className="flex items-center gap-2 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400 hover:bg-red-500/20"
+                          >
+                            <Bug size={16} />
+                            Bugs
+                          </button>
+
+                          {/* ACTIVE -> COMPLETE */}
+                          {Number(
+                            project.status
+                          ) === 1 && (
+                            <button
+                              onClick={() =>
+                                handleStatusChange(
+                                  project,
+                                  "complete"
+                                )
+                              }
+                              disabled={
+                                changingStatusProjectId ===
+                                project.projectId
+                              }
+                              className="rounded-lg bg-green-500/10 px-3 py-2 text-sm text-green-400 hover:bg-green-500/20 disabled:opacity-50"
+                            >
+                              {changingStatusProjectId ===
+                              project.projectId
+                                ? "Updating..."
+                                : "Complete"}
+                            </button>
+                          )}
+
+                          {/* COMPLETED -> ARCHIVE */}
+                          {Number(
+                            project.status
+                          ) === 2 && (
+                            <button
+                              onClick={() =>
+                                handleStatusChange(
+                                  project,
+                                  "archive"
+                                )
+                              }
+                              disabled={
+                                changingStatusProjectId ===
+                                project.projectId
+                              }
+                              className="rounded-lg bg-purple-500/10 px-3 py-2 text-sm text-purple-400 hover:bg-purple-500/20 disabled:opacity-50"
+                            >
+                              {changingStatusProjectId ===
+                              project.projectId
+                                ? "Updating..."
+                                : "Archive"}
+                            </button>
+                          )}
+
+                          {/* ARCHIVED -> RESTORE */}
+                          {Number(
+                            project.status
+                          ) === 3 && (
+                            <button
+                              onClick={() =>
+                                handleStatusChange(
+                                  project,
+                                  "restore"
+                                )
+                              }
+                              disabled={
+                                changingStatusProjectId ===
+                                project.projectId
+                              }
+                              className="rounded-lg bg-blue-500/10 px-3 py-2 text-sm text-blue-400 hover:bg-blue-500/20 disabled:opacity-50"
+                            >
+                              {changingStatusProjectId ===
+                              project.projectId
+                                ? "Updating..."
+                                : "Restore"}
+                            </button>
+                          )}
+
+                          {/* EDIT */}
+                          <button
+                            onClick={() => {
+                              setError("");
+                              setSuccess("");
+
+                              setEditingProject({
+                                ...project,
+                              });
+                            }}
+                            className="flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-400 hover:bg-amber-500/20"
+                          >
+                            <Pencil size={16} />
+                            Edit
+                          </button>
+
+                          {/* DELETE */}
+                          <button
+                            onClick={() =>
+                              handleDeleteProject(
+                                project
+                              )
+                            }
+                            disabled={
+                              deletingProjectId ===
+                              project.projectId
+                            }
+                            className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium hover:bg-red-500 disabled:opacity-50"
+                          >
+                            <Trash2 size={16} />
+
+                            {deletingProjectId ===
+                            project.projectId
+                              ? "Deleting..."
+                              : "Delete"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                )}
+
+                {filteredProjects.length ===
+                  0 && (
                   <tr>
                     <td
                       colSpan="6"
@@ -405,22 +591,31 @@ function ManagerProjects() {
         </section>
       </div>
 
+      {/* CREATE PROJECT MODAL */}
       {showCreateModal && (
         <Modal
           title="Create Project"
           onClose={closeCreateModal}
         >
-          <form onSubmit={handleCreateProject} className="space-y-5">
+          <form
+            onSubmit={handleCreateProject}
+            className="space-y-5"
+          >
             {createError && (
               <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">
                 {createError}
               </div>
             )}
+
             <FormField label="Project Code">
               <input
                 name="projectCode"
-                value={createForm.projectCode}
-                onChange={handleCreateInputChange}
+                value={
+                  createForm.projectCode
+                }
+                onChange={
+                  handleCreateInputChange
+                }
                 required
                 placeholder="Example: BTS-001"
                 className="form-input"
@@ -430,8 +625,12 @@ function ManagerProjects() {
             <FormField label="Project Name">
               <input
                 name="projectName"
-                value={createForm.projectName}
-                onChange={handleCreateInputChange}
+                value={
+                  createForm.projectName
+                }
+                onChange={
+                  handleCreateInputChange
+                }
                 required
                 placeholder="Example: Bug Tracking System"
                 className="form-input"
@@ -441,8 +640,12 @@ function ManagerProjects() {
             <FormField label="Description">
               <textarea
                 name="description"
-                value={createForm.description}
-                onChange={handleCreateInputChange}
+                value={
+                  createForm.description
+                }
+                onChange={
+                  handleCreateInputChange
+                }
                 required
                 rows="4"
                 placeholder="Describe the project."
@@ -459,15 +662,23 @@ function ManagerProjects() {
         </Modal>
       )}
 
+      {/* EDIT PROJECT MODAL */}
       {editingProject && (
         <Modal
           title="Edit Project"
-          onClose={() => setEditingProject(null)}
+          onClose={() =>
+            setEditingProject(null)
+          }
         >
-          <form onSubmit={handleUpdateProject} className="space-y-5">
+          <form
+            onSubmit={handleUpdateProject}
+            className="space-y-5"
+          >
             <FormField label="Project Code">
               <input
-                value={editingProject.projectCode}
+                value={
+                  editingProject.projectCode
+                }
                 disabled
                 className="form-input cursor-not-allowed opacity-60"
               />
@@ -476,8 +687,12 @@ function ManagerProjects() {
             <FormField label="Project Name">
               <input
                 name="projectName"
-                value={editingProject.projectName}
-                onChange={handleEditInputChange}
+                value={
+                  editingProject.projectName
+                }
+                onChange={
+                  handleEditInputChange
+                }
                 required
                 className="form-input"
               />
@@ -486,31 +701,25 @@ function ManagerProjects() {
             <FormField label="Description">
               <textarea
                 name="description"
-                value={editingProject.description || ""}
-                onChange={handleEditInputChange}
+                value={
+                  editingProject.description ||
+                  ""
+                }
+                onChange={
+                  handleEditInputChange
+                }
                 required
                 rows="4"
                 className="form-input resize-none"
               />
             </FormField>
 
-            <FormField label="Status">
-              <select
-                name="status"
-                value={editingProject.status}
-                onChange={handleEditInputChange}
-                className="form-input"
-              >
-                <option value="1">Active</option>
-                <option value="2">Completed</option>
-                <option value="3">Archived</option>
-              </select>
-            </FormField>
-
             <ModalActions
               submitting={submitting}
               submitLabel="Save Changes"
-              onCancel={() => setEditingProject(null)}
+              onCancel={() =>
+                setEditingProject(null)
+              }
             />
           </form>
         </Modal>
@@ -519,12 +728,18 @@ function ManagerProjects() {
   );
 }
 
-function Modal({ title, onClose, children }) {
+function Modal({
+  title,
+  onClose,
+  children,
+}) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
       <div className="w-full max-w-xl rounded-2xl border border-slate-700 bg-slate-900 p-6 text-white shadow-2xl">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">{title}</h2>
+          <h2 className="text-2xl font-bold">
+            {title}
+          </h2>
 
           <button
             type="button"
@@ -541,12 +756,16 @@ function Modal({ title, onClose, children }) {
   );
 }
 
-function FormField({ label, children }) {
+function FormField({
+  label,
+  children,
+}) {
   return (
     <label className="block">
       <span className="mb-2 block text-sm font-medium text-slate-300">
         {label}
       </span>
+
       {children}
     </label>
   );
@@ -572,7 +791,9 @@ function ModalActions({
         disabled={submitting}
         className="rounded-lg bg-blue-600 px-5 py-2 font-semibold hover:bg-blue-500 disabled:opacity-50"
       >
-        {submitting ? "Saving..." : submitLabel}
+        {submitting
+          ? "Saving..."
+          : submitLabel}
       </button>
     </div>
   );
@@ -585,13 +806,18 @@ function getStatusLabel(status) {
     3: "Archived",
   };
 
-  return labels[Number(status)] || `Status ${status}`;
+  return (
+    labels[Number(status)] ||
+    `Status ${status}`
+  );
 }
 
 function getStatusStyle(status) {
   const styles = {
     1: "rounded-full bg-green-500/10 px-3 py-1 text-sm text-green-400",
+
     2: "rounded-full bg-blue-500/10 px-3 py-1 text-sm text-blue-400",
+
     3: "rounded-full bg-slate-500/10 px-3 py-1 text-sm text-slate-400",
   };
 
@@ -601,7 +827,10 @@ function getStatusStyle(status) {
   );
 }
 
-function getErrorMessage(error, fallbackMessage) {
+function getErrorMessage(
+  error,
+  fallbackMessage
+) {
   return (
     error.response?.data?.detail ||
     error.response?.data?.message ||

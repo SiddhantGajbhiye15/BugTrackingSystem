@@ -2,17 +2,20 @@
 using BugTrackingSystem.Entities;
 using BugTrackingSystem.Enums;
 using BugTrackingSystem.Interfaces;
-
+using BugTrackingSystem.Repositories.Interfaces;
 namespace BugTrackingSystem.Services
 {
     public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _projectRepository;
+        private readonly IProjectMemberRepository _projectMemberRepository;
 
         public ProjectService(
-            IProjectRepository projectRepository)
+    IProjectRepository projectRepository,
+    IProjectMemberRepository projectMemberRepository)
         {
             _projectRepository = projectRepository;
+            _projectMemberRepository = projectMemberRepository;
         }
 
         public async Task<ProjectResponseDto> CreateAsync(
@@ -103,7 +106,6 @@ namespace BugTrackingSystem.Services
 
             project.ProjectName = request.ProjectName.Trim();
             project.Description = request.Description.Trim();
-            project.Status = request.Status;
             project.UpdatedAt = DateTime.UtcNow;
 
             await _projectRepository.SaveChangesAsync();
@@ -225,5 +227,114 @@ namespace BugTrackingSystem.Services
                 UpdatedAt = project.UpdatedAt
             };
         }
+        public async Task<ProjectResponseDto> CompleteAsync(
+    int projectId,
+    int currentUserId)
+        {
+            var project =
+                await _projectRepository.GetByIdAsync(projectId);
+
+            if (project == null)
+            {
+                throw new KeyNotFoundException(
+                    "Project not found.");
+            }
+
+            if (project.ProjectManagerId != currentUserId)
+            {
+                throw new UnauthorizedAccessException(
+                    "Only the current Project Manager can complete this project.");
+            }
+
+            if (project.Status != ProjectStatus.Active)
+            {
+                throw new InvalidOperationException(
+                    "Only an active project can be completed.");
+            }
+
+            project.Status = ProjectStatus.Completed;
+            project.UpdatedAt = DateTime.UtcNow;
+
+            await _projectRepository.SaveChangesAsync();
+
+            return MapToResponseDto(project);
+        }
+        public async Task<ProjectResponseDto> ArchiveAsync(
+    int projectId,
+    int currentUserId)
+        {
+            var project =
+                await _projectRepository.GetByIdAsync(projectId);
+
+            if (project == null)
+            {
+                throw new KeyNotFoundException(
+                    "Project not found.");
+            }
+
+            if (project.ProjectManagerId != currentUserId)
+            {
+                throw new UnauthorizedAccessException(
+                    "Only the current Project Manager can archive this project.");
+            }
+
+            if (project.Status != ProjectStatus.Completed)
+            {
+                throw new InvalidOperationException(
+                    "Only a completed project can be archived.");
+            }
+
+            var activeMembers =
+                await _projectMemberRepository
+                    .GetActiveMembersForUpdateAsync(projectId);
+
+            var archivedAt = DateTime.UtcNow;
+
+            foreach (var member in activeMembers)
+            {
+                member.RemovedDate = archivedAt;
+            }
+
+            project.Status = ProjectStatus.Archived;
+            project.UpdatedAt = archivedAt;
+
+            await _projectMemberRepository.SaveChangesAsync();
+            await _projectRepository.SaveChangesAsync();
+
+            return MapToResponseDto(project);
+        }
+        public async Task<ProjectResponseDto> RestoreAsync(
+    int projectId,
+    int currentUserId)
+        {
+            var project =
+                await _projectRepository.GetByIdAsync(projectId);
+
+            if (project == null)
+            {
+                throw new KeyNotFoundException(
+                    "Project not found.");
+            }
+
+            if (project.ProjectManagerId != currentUserId)
+            {
+                throw new UnauthorizedAccessException(
+                    "Only the current Project Manager can restore this project.");
+            }
+
+            if (project.Status != ProjectStatus.Archived)
+            {
+                throw new InvalidOperationException(
+                    "Only an archived project can be restored.");
+            }
+
+            project.Status = ProjectStatus.Active;
+            project.UpdatedAt = DateTime.UtcNow;
+
+            await _projectRepository.SaveChangesAsync();
+
+            return MapToResponseDto(project);
+        }
+
     }
 }

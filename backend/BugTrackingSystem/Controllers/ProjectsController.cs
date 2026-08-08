@@ -171,6 +171,78 @@ namespace BugTrackingSystem.Controllers
                 });
             }
         }
+        [HttpPatch("{id:int}/complete")]
+        [Authorize(Roles = "ProjectManager")]
+        public async Task<IActionResult> CompleteProject(int id)
+        {
+            try
+            {
+                var project =
+                    await _projectService.CompleteAsync(
+                        id,
+                        GetCurrentUserId());
+
+                return Ok(project);
+            }
+            catch (Exception exception) when (
+                exception is InvalidOperationException ||
+                exception is UnauthorizedAccessException ||
+                exception is KeyNotFoundException)
+            {
+                return BadRequest(new
+                {
+                    Message = exception.Message
+                });
+            }
+        }
+        [HttpPatch("{id:int}/archive")]
+        [Authorize(Roles = "ProjectManager")]
+        public async Task<IActionResult> ArchiveProject(int id)
+        {
+            try
+            {
+                var project =
+                    await _projectService.ArchiveAsync(
+                        id,
+                        GetCurrentUserId());
+
+                return Ok(project);
+            }
+            catch (Exception exception) when (
+                exception is InvalidOperationException ||
+                exception is UnauthorizedAccessException ||
+                exception is KeyNotFoundException)
+            {
+                return BadRequest(new
+                {
+                    Message = exception.Message
+                });
+            }
+        }
+        [HttpPatch("{id:int}/restore")]
+        [Authorize(Roles = "ProjectManager")]
+        public async Task<IActionResult> RestoreProject(int id)
+        {
+            try
+            {
+                var project =
+                    await _projectService.RestoreAsync(
+                        id,
+                        GetCurrentUserId());
+
+                return Ok(project);
+            }
+            catch (Exception exception) when (
+                exception is InvalidOperationException ||
+                exception is UnauthorizedAccessException ||
+                exception is KeyNotFoundException)
+            {
+                return BadRequest(new
+                {
+                    Message = exception.Message
+                });
+            }
+        }
 
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "ProjectManager")]

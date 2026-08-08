@@ -45,18 +45,20 @@ namespace BugTrackingSystem.Repositories.Implementation
 
         public async Task<bool> HasMembersOrBugsAsync(int projectId)
         {
-            var hasMembers = await _context.ProjectMembers
+            var hasAnyMembers = await _context.ProjectMembers
                 .AnyAsync(pm => pm.ProjectId == projectId);
 
-            if (hasMembers)
+            if (hasAnyMembers)
             {
                 return true;
             }
 
-            return await _context.Bugs
+            var hasAnyBugs = await _context.Bugs
                 .AnyAsync(b => b.ProjectId == projectId);
+
+            return hasAnyBugs;
         }
-        public async Task<User?> GetUserByIdAsync(int userId)
+        public async Task<User?> GetUserByIdAsync(int userId)feat: add project lifecycle workflow and preserve membership history
         {
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.UserId == userId);

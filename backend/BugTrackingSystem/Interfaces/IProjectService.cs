@@ -25,5 +25,16 @@ namespace BugTrackingSystem.Interfaces
             int projectId,
             int currentUserId
         );
+        Task<ProjectResponseDto> CompleteAsync(
+    int projectId,
+    int currentUserId);
+
+        Task<ProjectResponseDto> ArchiveAsync(
+            int projectId,
+            int currentUserId);
+
+        Task<ProjectResponseDto> RestoreAsync(
+            int projectId,
+            int currentUserId);
     }
 }
