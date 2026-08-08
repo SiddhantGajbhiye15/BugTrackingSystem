@@ -252,6 +252,15 @@ namespace BugTrackingSystem.Services
                     "Only an active project can be completed.");
             }
 
+            var hasUnclosedBugs =
+                await _projectRepository.HasUnclosedBugsAsync(projectId);
+
+            if (hasUnclosedBugs)
+            {
+                throw new InvalidOperationException(
+                    "The project cannot be completed until all bugs are closed.");
+            }
+
             project.Status = ProjectStatus.Completed;
             project.UpdatedAt = DateTime.UtcNow;
 

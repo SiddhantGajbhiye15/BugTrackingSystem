@@ -16,6 +16,7 @@ namespace BugTrackingSystem.Interfaces
         Task AddAsync(Project project);
 
         Task<User?> GetUserByIdAsync(int userId);
+        Task<bool> HasUnclosedBugsAsync(int projectId);
 
         void Delete(Project project);
 

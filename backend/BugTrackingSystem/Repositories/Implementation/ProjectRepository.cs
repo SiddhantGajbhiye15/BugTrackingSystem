@@ -80,7 +80,13 @@ namespace BugTrackingSystem.Repositories.Implementation
         {
             await _context.SaveChangesAsync();
         }
+        public async Task<bool> HasUnclosedBugsAsync(int projectId)
+        {
+            return await _context.Bugs
+                .AnyAsync(b =>
+                    b.ProjectId == projectId &&
+                    b.Status != BugStatus.Closed);
+        }
 
-       
     }
 }
