@@ -60,7 +60,7 @@ The following accounts are available for recruiters and reviewers to test the de
 | Project Manager | `chetanbonsule@gmail.com` | `Chetan@123` |
 | Tester | `partharamarker@tester.com` | `Parth@123` |
 | Developer | `manish@test.com` | `Manish@123` |
-| Developer | `pranav@gmail.com` | `Pranay@123` |
+| Developer | `pranay@gmail.com` | `Pranay@123` |
 
 > These are shared demo accounts created only for testing. Data inside the deployed demo environment may change as different users test the application.
 
